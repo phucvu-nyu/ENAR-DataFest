@@ -1,0 +1,641 @@
+variable_names,variable_labels,description
+svy_id,Respondent sequence number,NHANES participant unique identifier.
+svy_weight_mec,Full Sample 2 Year MEC Exam Weight,Weight applied to produce statistical estimates for the non-institutionalized US population. This weight is used for calculating means and proportions.
+svy_psu,Masked Variance Pseudo-PSU,Population sampling unit. This variable is used to account for the non-random selection of study participants for NHANES
+svy_strata,Masked Variance Pseudo-Stratum,Population stratification. This variable is used to account for the non-random selection of study participants for NHANES
+svy_year,NHANES cycle,"NHANES survey cycle: 1999-2000, 2001-2002, 2003-2004, 2005-2006, 2007-2008, 2009-2010, 2011-2012, 2013-2014, 2015-2016, 2017-2020. Each cycle is 2 years in length, apart from 2017-2020, which covers 2017 through March of 2020 (approximately 3.2 years)"
+svy_subpop_htn,Subpopulation for hypertension,"This indicates that the person has data needed to be included in the analysis of blood pressure or hypertension data (i.e., they had at least one systolic and diastolic blood pressure measurement and they had information on self-reported antihypertensive medication use)."
+svy_subpop_chol,Subpopulation for cholesterol,NA
+demo_age_cat,"Age category, years","Age grouping: 18-44, 45-64, 65-74, ≥ 75 years"
+demo_race,Race/ethnicity,"Self-reported race/ethnicity. From 1999-2000 through 2009-2010 this was available as non-Hispanic White, non-Hispanic Black, Hispanic and other. From 2011-2012 through 2017-2020 this was available as non-Hispanic White, non-Hispanic Black, non-Hispanic Asian, Hispanic and other."
+demo_race_black,demo_race_black,NA
+demo_age_years,Age at Screening Adjudicated - Recode,"Participant age in years.  Participants > 80 years of age are given an age of 80 years. This top-coding was changed from 85 years to 80 with the 2007-2008 cycle (prior to then, was top-coded at 85)."
+demo_pregnant,Pregnant,Pregnancy status. This is defined by either self-report of being pregnant or a positive pregnancy test conducted during the study visit.
+demo_gender,Gender,Self-reported gender
+bp_sys_mean,"Systolic blood pressure (SBP), mm Hg","Mean systolic blood pressure in mm Hg. This is based on the average of up to 3 readings. Participants were required to have at least one reading. Overall, >95% of participants with at least one systolic blood pressure reading had three readings.  From 1999-2000 through 2015-2016, systolic blood pressure was measured using a mercury sphygmomanometer.  In 2017-2020, systolic blood pressure was measured using an oscillometric device.  The systolic blood pressure in 2017-2020 was calibrated to the mercury device by adding 1.5 mm Hg to the mean measured oscillometric value."
+bp_dia_mean,"Diastolic blood pressure (DBP), mm Hg","Mean diastolic blood pressure in mm Hg. This is based on the average of up to 3 readings. Participants were required to have at least one reading. Overall, >95% of participants with at least one diastolic blood pressure reading had three readings.  From 1999-2000 through 2015-2016, diastolic blood pressure was measured using a mercury sphygmomanometer.  In 2017-2020, diastolic blood pressure was measured using an oscillometric device.  The diastolic blood pressure in 2017-2020 was calibrated to the mercury device by subtracting 1.3 mm Hg to the mean measured oscillometric value."
+bp_cat_meds_excluded,Blood pressure category,"Systolic/diastolic blood pressure <120/80, 120-129/<80, 130-139/80-89, 140-159/90-99, ≥ 160/100. All participants were placed in the category associated with a higher blood pressure (e.g., someone with systolic blood pressure of 150 mm Hg and diastolic blood pressure of 76 mm Hg was placed in the 140-159/90-99 mm Hg category)"
+bp_cat_meds_included,Blood pressure category including antihypertensive medication use as a group,"Systolic/diastolic blood pressure <120/80, 120-129/<80, 130-139/80-89, 140-159/90-99, ≥ 160/100. Participants taking antihypertensive medication were placed in a separate category.  Participants were placed in the category associated with higher blood pressure (e.g., someone with systolic blood pressure of 150 mm Hg and diastolic blood pressure of 76 mm Hg was placed in the 140-159/90-99 mm Hg category)"
+bp_control_jnc7,Blood pressure control defined by the JNC7 guideline,"Systolic and diastolic blood pressure controlled to the levels recommended in the JNC7 guideline, systolic blood pressure < 140 mm Hg and diastolic blood pressure < 90 mm Hg except for those with diabetes or chronic kidney disease, where blood pressure control was defined by systolic blood pressure < 130 mm Hg and diastolic blood pressure < 80 mm Hg."
+bp_control_accaha,Blood pressure control defined by the 2017 ACC/AHA BP guideline,"Systolic and diastolic blood pressure controlled to the levels recommended in the 2017 ACC/AHA BP guideline, systolic blood pressure < 130 mm Hg and diastolic blood pressure < 80 mm Hg except for those ≥ 65 years of age without diabetes, chronic kidney disease, history of cardiovascular disease or 10-year predicted ASCVD risk ≥ 10% estimated using the Pooled Cohort risk equations. For this group, blood pressure control was defined as systolic blood pressure < 130 mm Hg"
+bp_control_escesh_1,Blood pressure control defined by the 2018 ESC/ESH arterial hypertension guideline; first goal,"Systolic and diastolic blood pressure controlled to the levels recommended in the 2018 ESC/ESH arterial hypertension guideline; first goal, systolic blood pressure < 140 mm Hg and diastolic blood pressure < 90 mm Hg."
+bp_control_escesh_2,Blood pressure control defined by the 2018 ESC/ESH arterial hypertension guideline; second goal,"Systolic and diastolic blood pressure controlled to the levels recommended in the 2018 ESC/ESH arterial hypertension guideline; second goal, systolic blood pressure < 130 mm Hg and diastolic blood pressure < 80 mm Hg for those < 65 years of age except those with chronic kidney disease and those age ≥ 65 years. For those with chronic kidney disease < 65 years and those age ≥ 65 years, blood pressure control was defined as systolic blood pressure < 140 and diastolic blood pressure < 80 mm Hg."
+bp_control_140_90,Blood pressure control (SBP < 140 mm Hg and DBP < 90 mm Hg),Systolic blood pressure < 140 mm Hg and diastolic blood pressure < 90 mm Hg
+bp_control_130_80,Blood pressure control (SBP < 130 mm Hg and DBP < 80 mm Hg),Systolic blood pressure < 130 mm Hg and diastolic blood pressure < 80 mm Hg
+bp_uncontrolled_jnc7,Uncontrolled blood pressure defined by the JNC7 guideline,Systolic blood pressure ≥ 140 mm Hg or diastolic blood pressure ≥ 90 mm Hg  for those without diabetes and without chronic kidney disease; Systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg for those with diabetes or chronic kidney disease
+bp_uncontrolled_accaha,Uncontrolled blood pressure defined by the 2017 ACC/AHA BP guideline,"Systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg except for adults ≥ 65 years of age without diabetes, chronic kidney disease, history of cardiovascular disease or 10-year predicted ASCVD risk ≥ 10%. For this group, uncontrolled blood pressure was defined as systolic blood pressure ≥ 130 mm Hg."
+bp_uncontrolled_escesh_1,Uncontrolled blood pressure control defined by the 2018 ESC/ESH arterial hypertension guideline; first goal,Systolic blood pressure ≥ 140 mm Hg or diastolic blood pressure ≥ 90 mm Hg
+bp_uncontrolled_escesh_2,Uncontrolled blood pressure control defined by the 2018 ESC/ESH arterial hypertension guideline; second goal,"Systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg except for those < 65 years of age with chronic kidney disease and those age ≥ 65 years. For those < 65 years of age with chronic kidney disease and those age ≥ 65 years, uncontrolled blood pressure was defined as systolic blood pressure ≥ 140 and diastolic blood pressure ≥ 80 mm Hg."
+bp_uncontrolled_140_90,Uncontrolled blood pressure (SBP ≥ 140 mm Hg or DBP ≥ 90 mm Hg),Systolic blood pressure ≥ 140 mm Hg or diastolic blood pressure ≥ 90 mm Hg
+bp_uncontrolled_130_80,Uncontrolled blood pressure (SBP ≥ 130 mm Hg or DBP ≥ 80 mm Hg),Systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg
+bp_med_use,Self-reported antihypertensive medication use,Self-reported use of antihypertensive medication
+bp_med_recommended_jnc7,Antihypertensive medication use recommended by the JNC7 guideline,Systolic blood pressure ≥ 140 mm Hg or diastolic blood pressure ≥ 90 mm Hg; Systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg for those with chronic kidney disease or diabetes. Those taking antihypertensive medications were considered to be recommended treatment.
+bp_med_recommended_accaha,Antihypertensive medication use recommended by the 2017 ACC/AHA BP guideline,"Systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg; Systolic blood pressure ≥ 130 mm Hg for those age ≥ 65 years without diabetes, chronic kidney disease, history of cardiovascular disease, or 10-year predicted atherosclerotic cardiovascular disease risk ≥ 10% by the pooled cohort risk equations. Those taking antihypertensive medications were considered to be recommended treatment."
+bp_med_recommended_escesh,Antihypertensive medication use recommended by the 2018 ESC/ESH arterial hypertension guideline,Systolic blood pressure ≥ 140 mm Hg or diastolic blood pressure ≥ 90 mm Hg. Those taking antihypertensive medications were considered to be recommended treatment.
+bp_med_n_class,Number of antihypertensive medication classes,Number of antihypertensive medication classes being taken based on the pill bottle review.
+bp_med_n_pills,Number of antihypertensive medication pills,Number of antihypertensive medication pills being taken based on the medication inventory.
+bp_med_combination,Combination therapy,Taking a single pill with two classes of antihypertensive medication.
+bp_med_pills_gteq_2,Taking two or more antihypertensive medication pills,Taking ≥ 2 antihypertensive medication pills based on the medication inventory.
+bp_med_ace,ACE inhibitors,"Taking an angiotensin converting enzyme inhibitor, defined using the pill bottle review. Drugs in this class included benazepril, captopril, enalapril, fosinopril, lisinopril, moexipril, perindopril, quinapril, ramipril, trandolapril"
+bp_med_aldo,Aldosterone antagonists,"Taking an aldosterone antagonist, defined using the pill bottle review. Drugs in this class included eplerenone, spironolactone."
+bp_med_alpha,Alpha-1 blockers,"Taking an alpha blocker, defined using the pill bottle review. Drugs in this class included doxazosin, prazosin, terazosin."
+bp_med_angioten,Angiotensin receptor blockers,"Taking an angiotensin receptor blocker, defined using the pill bottle review. Drugs in this class included azilsartan, candesartan, eprosartan, irbesartan, losartan, olmesartan, telmisartan, valsartan."
+bp_med_beta,Beta blockers,"Taking a beta blocker. Drugs in this class included acebutolol, atenolol, betaxolol, bisoprolol, carvedilol, labetalol, metoprolol, nadolol, nebivolol, pindolol, penbutolol, propranolol, timolol."
+bp_med_central,Central alpha1 agonist and other centrally acting agents,"Taking a centrally acting agents, defined using the pill bottle review. Drugs in this class included clonidine, guanabenz, guanadrel, guanethidine, guanfacine, methyldopa, reserpine."
+bp_med_ccb,Calcium channel blockers,"Taking a calcium channel blocker, defined using the pill bottle review. Drugs in this class included amlodipine, diltiazem, felodipine, isradipine, nicardipine, nifedipine, nisoldipine, verapamil."
+bp_med_ccb_dh,Dihydropyridine calcium channel blockers,"Taking a dihydropyridine calcium channel blocker, defined using the medication inventory. Drugs in this class included amlodipine, felodipine, isradipine, nicardipine, nifedipine, and nisoldipine."
+bp_med_ccb_ndh,Non-dihydropyridine calcium channel blockers,"Taking a dihydropyridine calcium channel blocker, defined using the medication inventory. Drugs in this class included diltiazem, verapamil."
+bp_med_diur_Ksparing,Potassium sparing diuretics,"Taking a potassium-sparing diuretic, defined using the pill bottle review. Drugs in this class included amiloride, triamterene."
+bp_med_diur_loop,Loop diuretics,"Taking a loop diuretic, defined using the pill bottle review. Drugs in this class included bumetanide, furosemide, torsemide, ethacrynic acid."
+bp_med_diur_thz,Thiazide or thiazide-type diuretics,"Taking a thiazide diuretic, defined using the pill bottle review. Drugs in this class included bendroflumethiazide, chlorthalidone, chlorothiazide, hydrochlorothiazide, hydroflumethiazide, indapamide, metolazone, methyclothiazide, trichlormethiazide."
+bp_med_renin_inhibitors,Direct renin inhibitors,"Taking a renin inhibitor, defined using the pill bottle review. Drugs in this class included aliskiren."
+bp_med_vasod,Direct vasodilators,"Taking a vasodilator, defined using the pill bottle review. Drugs in this class included hydralazine, minoxidil."
+htn_jnc7,Hypertension defined by the JNC7 guideline,"Hypertension defined by the JNC7 guideline, systolic blood pressure ≥ 140 mm Hg, diastolic blood pressure ≥ 90 mm Hg or self-reported antihypertensive medication use."
+htn_accaha,Hypertension defined by the 2017 ACC/AHA BP guideline,"Hypertension defined by the 2017 ACC/AHA blood pressure guideline, systolic blood pressure ≥ 130 mm Hg, diastolic blood pressure ≥ 80 mm Hg or self-reported antihypertensive medication use."
+htn_escesh,Hypertension defined by the 2018 ESC/ESH arterial hypertension guideline,"Hypertension defined by the 2018 ESC/ESH arterial hypertension guideline	Hypertension defined by the 2018 ESC/ESH arterial hypertension guideline, systolic blood pressure ≥ 140 mm Hg, diastolic blood pressure ≥ 90 mm Hg, or self-reported antihypertensive medication use."
+htn_aware,Awareness of hypertension,Self-report of a prior diagnosis of hypertension.
+htn_resistant_jnc7,Apparent resistant hypertension defined by the JNC7 guideline,"Taking 4 or more classes of antihypertensive medication, systolic blood pressure ≥ 140 mm Hg or diastolic blood pressure ≥ 90 mm Hg with the use of 3 classes of antihypertensive medication, or systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg with the use of 3 classes of antihypertensive medication for those with diabetes or chronic kidney disease."
+htn_resistant_accaha,Apparent resistant hypertension defined by the 2017 ACC/AHA BP guideline,"Taking 4 or more classes of antihypertensive medication; systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg with the use of 3 classes of antihypertensive medication for those < 65 years of age and those ≥ 65 years of age with diabetes, chronic kidney disease, history of cardiovascular disease or 10-year predicted ASCVD risk ≥ 10%; Systolic blood pressure ≥ 130 mm Hg with the use of 3 classes of antihypertensive medication for those ≥ 65 years of age without diabetes, chronic kidney disease, history of cardiovascular disease or 10-year predicted ASCVD risk ≥ 10%."
+htn_resistant_jnc7_thz,"Apparent resistant hypertension defined by the 2017 ACC/AHA BP guideline, requires thiazide diuretic","Taking 4 or more classes of antihypertensive medication, systolic blood pressure ≥ 140 mm Hg or diastolic blood pressure ≥ 90 mm Hg with the use of 3 classes of antihypertensive medication, or systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg with the use of 3 classes of antihypertensive medication for those with diabetes or chronic kidney disease.  To meet this definition of resistant hypertension, the participant had to be taking a thiazide diuretic."
+htn_resistant_accaha_thz,"Apparent resistant hypertension defined by the JNC7 guideline, requires thiazide diuretic","Taking 4 or more classes of antihypertensive medication; systolic blood pressure ≥ 130 mm Hg or diastolic blood pressure ≥ 80 mm Hg with the use of 3 classes of antihypertensive medication for those < 65 years of age and those ≥ 65 years of age with diabetes, chronic kidney disease, history of cardiovascular disease or 10-year predicted ASCVD risk ≥ 10%; Systolic blood pressure ≥ 130 mm Hg with the use of 3 classes of antihypertensive medication for those ≥ 65 years of age without diabetes, chronic kidney disease, history of cardiovascular disease or 10-year predicted ASCVD risk ≥ 10%.  To meet this definition of resistant hypertension, the participant had to be taking a thiazide diuretic."
+chol_measured_never,Cholesterol has never been measured,NA
+chol_measured_last,Time since having their cholesterol measured,NA
+chol_total,"Total cholesterol, mg/dL",NA
+chol_total_gteq_200,Total cholesterol ≥ 200 mg/dL,NA
+chol_total_gteq_240,Total cholesterol ≥ 240 mg/dL,NA
+chol_hdl,"HDL cholesterol, mg/dL",NA
+chol_hdl_low,HDL cholesterol <40 mg/dL in women (<50 mg/dL in men),NA
+chol_trig,"Triglycerides, mg/dL",NA
+chol_trig_gteq_150,Triglycerides ≥ 150 mg/dL,NA
+chol_ldl,"LDL cholesterol, mg/dL",NA
+chol_ldl_5cat,LDL cholesterol categories,NA
+chol_ldl_lt_70,LDL cholesterol < 70 mg/dL,NA
+chol_ldl_gteq_70,LDL cholesterol ≥ 70 mg/dL,NA
+chol_ldl_lt_100,LDL cholesterol < 100 mg/dL,NA
+chol_ldl_gteq_100,LDL cholesterol ≥ 100 mg/dL,NA
+chol_ldl_gteq_190,LDL cholesterol ≥ 190 mg/dL,NA
+chol_ldl_persistent,LDL persistently elevated (LDL ≥ 100 mg/dL while taking a statin),NA
+chol_nonhdl,"Non-HDL cholesterol, mg/dL",NA
+chol_nonhdl_5cat,Non-HDL cholesterol categories,NA
+chol_nonhdl_lt_100,Non-HDL cholesterol < 100 mg/dL,NA
+chol_nonhdl_gteq_100,Non-HDL cholesterol ≥ 100 mg/dL,NA
+chol_nonhdl_gteq_220,Non-HDL cholesterol ≥ 220 mg/dL,NA
+chol_med_use,Taking a cholesterol-lowering medication,NA
+chol_med_use_sr,Self-reported cholesterol-lowering medication use,NA
+chol_med_statin,Taking a statin,NA
+chol_med_ezetimibe,Taking ezetimibe,NA
+chol_med_pcsk9i,Taking a PCSK9 inhibitor,NA
+chol_med_bile,Taking a bile acid sequestrant,NA
+chol_med_fibric_acid,Taking a fibrate,NA
+chol_med_atorvastatin,Taking atorvastatin,NA
+chol_med_simvastatin,Taking simvastatin,NA
+chol_med_rosuvastatin,Taking rosuvastatin,NA
+chol_med_pravastatin,Taking pravastatin,NA
+chol_med_pitavastatin,Taking pitavastatin,NA
+chol_med_fluvastatin,Taking fluvastatin,NA
+chol_med_lovastatin,Taking lovastatin,NA
+chol_med_other,Taking other cholesterol-lowering medication,NA
+chol_med_addon_use,Taking add-on lipid-lowering therapy (ezetimibe or PCSK9 inhibitor),NA
+chol_med_addon_recommended_ahaacc,Recommended add-on lipid-lowering therapy by the 2018 AHA/ACC guideline,NA
+chol_med_statin_recommended_ahaacc,Recommended a statin by the 2018 AHA/ACC guideline,NA
+chol_med_recommended_ever,Ever been told to take cholesterol-lowering medication,NA
+ascvd_risk_vh_ahaacc,Very high ASCVD risk according to the 2018 AHA/ACC guideline,NA
+cc_smoke,Smoking status,Self-reported current cigarette smoking
+cc_bmi,"Body mass index, kg/m2","Body mass index in kg/m2, estimated using the height and weight measured during the study examination."
+cc_diabetes,Prevalent diabetes,HbA1c ≥ 6.5% or self-report of a prior diagnosis of diabetes with self-reported use of insulin or oral glucose-lowering medications.
+cc_ckd,Prevalent chronic kidney disease,Estimated glomerular filtration rate < 60 ml/min/1.73 m2 or albumin-to-creatinine > 30 mg/g. Estimated glomerular filtration rate was calculated using the 2021 serum creatinine-based equation.
+cc_cvd_mi,History of myocardial infarction,Self-reported history of myocardial infarction
+cc_cvd_chd,History of coronary heart disease,Self-reported history of myocardial infarction or coronary heart disease
+cc_cvd_stroke,History of stroke,Self-reported history of stroke
+cc_cvd_ascvd,History of ASCVD,"Self-reported history of coronary heart disease, myocardial infarction or stroke"
+cc_cvd_hf,History of heart failure,Self-reported history of heart failure
+cc_cvd_any,History of CVD,"Self-reported history of coronary heart disease, myocardial infarction, stroke or heart failure"
+SDDSRVYR,Data release cycle,NA
+RIDSTATR,Interview/Examination status,NA
+RIAGENDR,Gender,NA
+RIDAGEYR,Age in years at screening,NA
+RIDAGEMN,Age in months at screening - 0 to 24 mos,NA
+RIDRETH1,Race/Hispanic origin,NA
+RIDRETH3,Race/Hispanic origin w/ NH Asian,NA
+RIDEXMON,Six month time period,NA
+RIDEXAGY,Age in years at exam - 2 to 19 years,NA
+RIDEXAGM,Age in months at exam - 0 to 19 years,NA
+DMQMILIZ,Served active duty in US Armed Forces,NA
+DMQADFC,Served in a foreign country,NA
+DMDBORN4,Country of birth,NA
+DMDCITZN,Citizenship status,NA
+DMDYRSUS,Length of time in US,NA
+DMDEDUC3,Education level - Children/Youth 6-19,NA
+DMDEDUC2,Education level - Adults 20+,NA
+DMDMARTL,Marital status,NA
+RIDEXPRG,Pregnancy status at exam,NA
+SIALANG,Language of SP Interview,NA
+SIAPROXY,Proxy used in SP Interview?,NA
+SIAINTRP,Interpreter used in SP Interview?,NA
+FIALANG,Language of Family Interview,NA
+FIAPROXY,Proxy used in Family Interview?,NA
+FIAINTRP,Interpreter used in Family Interview?,NA
+MIALANG,Language of MEC Interview,NA
+MIAPROXY,Proxy used in MEC Interview?,NA
+MIAINTRP,Interpreter used in MEC Interview?,NA
+AIALANGA,Language of ACASI Interview,NA
+WTINT2YR,Full sample 2 year interview weight,NA
+WTMEC2YR,Full sample 2 year MEC exam weight,NA
+SDMVPSU,Masked variance pseudo-PSU,NA
+SDMVSTRA,Masked variance pseudo-stratum,NA
+INDHHIN2,Annual household income,NA
+INDFMIN2,Annual family income,NA
+INDFMPIR,Ratio of family income to poverty,NA
+DMDHHSIZ,Total number of people in the Household,NA
+DMDFMSIZ,Total number of people in the Family,NA
+DMDHHSZA,# of children 5 years or younger in HH,NA
+DMDHHSZB,# of children 6-17 years old in HH,NA
+DMDHHSZE,# of adults 60 years or older in HH,NA
+DMDHRGND,HH ref person's gender,NA
+DMDHRAGE,HH ref person's age in years,NA
+DMDHRBR4,HH ref person's country of birth,NA
+DMDHREDU,HH ref person's education level,NA
+DMDHRMAR,HH ref person's marital status,NA
+DMDHSEDU,HH ref person's spouse's education level,NA
+WTDRD1.x,Dietary day one sample weight,NA
+WTDR2D.x,Dietary two-day sample weight,NA
+DR1DRSTZ,Dietary recall status,NA
+DR1EXMER,Interviewer ID code,NA
+DRABF.x,Breast-fed infant (either day),NA
+DRDINT.x,Number of days of intake,NA
+DR1DBIH,# of days b/w intake and HH interview,NA
+DR1DAY,Intake day of the week,NA
+DR1LANG,Language respondent used mostly,NA
+DR1MNRSP,Main respondent for this interview,NA
+DR1HELPD,Helped in responding for this interview,NA
+DBQ095Z,Type of table salt used,NA
+DBD100,How often add salt to food at table,NA
+DRQSPREP,Salt used in preparation?,NA
+DRQSDIET,On special diet?,NA
+DRQSDT1,Weight loss/Low calorie diet,NA
+DRQSDT2,Low fat/Low cholesterol diet,NA
+DRQSDT3,Low salt/Low sodium diet,NA
+DRQSDT4,Sugar free/Low sugar diet,NA
+DRQSDT5,Low fiber diet,NA
+DRQSDT6,High fiber diet,NA
+DRQSDT7,Diabetic diet,NA
+DRQSDT8,Weight gain/Muscle building diet,NA
+DRQSDT9,Low carbohydrate diet,NA
+DRQSDT10,High protein diet,NA
+DRQSDT11,Gluten-free/Celiac diet,NA
+DRQSDT12,Renal/Kidney diet,NA
+DRQSDT91,Other special diet,NA
+DR1TNUMF,Number of foods reported,NA
+DR1TKCAL,Energy (kcal),NA
+DR1TPROT,Protein (gm),NA
+DR1TCARB,Carbohydrate (gm),NA
+DR1TSUGR,Total sugars (gm),NA
+DR1TFIBE,Dietary fiber (gm),NA
+DR1TTFAT,Total fat (gm),NA
+DR1TSFAT,Total saturated fatty acids (gm),NA
+DR1TMFAT,Total monounsaturated fatty acids (gm),NA
+DR1TPFAT,Total polyunsaturated fatty acids (gm),NA
+DR1TCHOL,Cholesterol (mg),NA
+DR1TATOC,Vitamin E as alpha-tocopherol (mg),NA
+DR1TATOA,Added alpha-tocopherol (Vitamin E) (mg),NA
+DR1TRET,Retinol (mcg),NA
+DR1TVARA,"Vitamin A, RAE (mcg)",NA
+DR1TACAR,Alpha-carotene (mcg),NA
+DR1TBCAR,Beta-carotene (mcg),NA
+DR1TCRYP,Beta-cryptoxanthin (mcg),NA
+DR1TLYCO,Lycopene (mcg),NA
+DR1TLZ,Lutein + zeaxanthin (mcg),NA
+DR1TVB1,Thiamin (Vitamin B1) (mg),NA
+DR1TVB2,Riboflavin (Vitamin B2) (mg),NA
+DR1TNIAC,Niacin (mg),NA
+DR1TVB6,Vitamin B6 (mg),NA
+DR1TFOLA,Total folate (mcg),NA
+DR1TFA,Folic acid (mcg),NA
+DR1TFF,Food folate (mcg),NA
+DR1TFDFE,"Folate, DFE (mcg)",NA
+DR1TCHL,Total choline (mg),NA
+DR1TVB12,Vitamin B12 (mcg),NA
+DR1TB12A,Added vitamin B12 (mcg),NA
+DR1TVC,Vitamin C (mg),NA
+DR1TVD,Vitamin D (D2 + D3) (mcg),NA
+DR1TVK,Vitamin K (mcg),NA
+DR1TCALC,Calcium (mg),NA
+DR1TPHOS,Phosphorus (mg),NA
+DR1TMAGN,Magnesium (mg),NA
+DR1TIRON,Iron (mg),NA
+DR1TZINC,Zinc (mg),NA
+DR1TCOPP,Copper (mg),NA
+DR1TSODI,Sodium (mg),NA
+DR1TPOTA,Potassium (mg),NA
+DR1TSELE,Selenium (mcg),NA
+DR1TCAFF,Caffeine (mg),NA
+DR1TTHEO,Theobromine (mg),NA
+DR1TALCO,Alcohol (gm),NA
+DR1TMOIS,Moisture (gm),NA
+DR1TS040,SFA 4:0 (Butanoic) (gm),NA
+DR1TS060,SFA 6:0 (Hexanoic) (gm),NA
+DR1TS080,SFA 8:0 (Octanoic) (gm),NA
+DR1TS100,SFA 10:0 (Decanoic) (gm),NA
+DR1TS120,SFA 12:0 (Dodecanoic) (gm),NA
+DR1TS140,SFA 14:0 (Tetradecanoic) (gm),NA
+DR1TS160,SFA 16:0 (Hexadecanoic) (gm),NA
+DR1TS180,SFA 18:0 (Octadecanoic) (gm),NA
+DR1TM161,MFA 16:1 (Hexadecenoic) (gm),NA
+DR1TM181,MFA 18:1 (Octadecenoic) (gm),NA
+DR1TM201,MFA 20:1 (Eicosenoic) (gm),NA
+DR1TM221,MFA 22:1 (Docosenoic) (gm),NA
+DR1TP182,PFA 18:2 (Octadecadienoic) (gm),NA
+DR1TP183,PFA 18:3 (Octadecatrienoic) (gm),NA
+DR1TP184,PFA 18:4 (Octadecatetraenoic) (gm),NA
+DR1TP204,PFA 20:4 (Eicosatetraenoic) (gm),NA
+DR1TP205,PFA 20:5 (Eicosapentaenoic) (gm),NA
+DR1TP225,PFA 22:5 (Docosapentaenoic) (gm),NA
+DR1TP226,PFA 22:6 (Docosahexaenoic) (gm),NA
+DR1_300,Compare food consumed yesterday to usual,NA
+DR1_320Z,Total plain water drank yesterday (gm),NA
+DR1_330Z,Total tap water drank yesterday (gm),NA
+DR1BWATZ,Total bottled water drank yesterday (gm),NA
+DR1TWS,Tap water source,NA
+DRD340,Shellfish eaten during past 30 days,NA
+DRD350A,Clams eaten during past 30 days,NA
+DRD350AQ,# of times clams eaten in past 30 days,NA
+DRD350B,Crabs eaten during past 30 days,NA
+DRD350BQ,# of times crabs eaten in past 30 days,NA
+DRD350C,Crayfish eaten during past 30 days,NA
+DRD350CQ,# of times crayfish eaten past 30 days,NA
+DRD350D,Lobsters eaten during past 30 days,NA
+DRD350DQ,# of times lobsters eaten past 30 days,NA
+DRD350E,Mussels eaten during past 30 days,NA
+DRD350EQ,# of times mussels eaten in past 30 days,NA
+DRD350F,Oysters eaten during past 30 days,NA
+DRD350FQ,# of times oysters eaten in past 30 days,NA
+DRD350G,Scallops eaten during past 30 days,NA
+DRD350GQ,# of times scallops eaten past 30 days,NA
+DRD350H,Shrimp eaten during past 30 days,NA
+DRD350HQ,# of times shrimp eaten in past 30 days,NA
+DRD350I,Other shellfish eaten past 30 days,NA
+DRD350IQ,# of times other shellfish eaten,NA
+DRD350J,Other unknown shellfish eaten past 30 d,NA
+DRD350JQ,# of times other unknown shellfish eaten,NA
+DRD350K,Refused on shellfish eaten past 30 days,NA
+DRD360,Fish eaten during past 30 days,NA
+DRD370A,Breaded fish products eaten past 30 days,NA
+DRD370AQ,# of times breaded fish products eaten,NA
+DRD370B,Tuna eaten during past 30 days,NA
+DRD370BQ,# of times tuna eaten in past 30 days,NA
+DRD370C,Bass eaten during past 30 days,NA
+DRD370CQ,# of times bass eaten in past 30 days,NA
+DRD370D,Catfish eaten during past 30 days,NA
+DRD370DQ,# of times catfish eaten in past 30 days,NA
+DRD370E,Cod eaten during past 30 days,NA
+DRD370EQ,# of times cod eaten in past 30 days,NA
+DRD370F,Flatfish eaten during past 30 days,NA
+DRD370FQ,# of times flatfish eaten past 30 days,NA
+DRD370G,Haddock eaten during past 30 days,NA
+DRD370GQ,# of times haddock eaten in past 30 days,NA
+DRD370H,Mackerel eaten during past 30 days,NA
+DRD370HQ,# of times mackerel eaten past 30 days,NA
+DRD370I,Perch eaten during past 30 days,NA
+DRD370IQ,# of times perch eaten in past 30 days,NA
+DRD370J,Pike eaten during past 30 days,NA
+DRD370JQ,# of times pike eaten in past 30 days,NA
+DRD370K,Pollock eaten during past 30 days,NA
+DRD370KQ,# of times pollock eaten in past 30 days,NA
+DRD370L,Porgy eaten during past 30 days,NA
+DRD370LQ,# of times porgy eaten in past 30 days,NA
+DRD370M,Salmon eaten during past 30 days,NA
+DRD370MQ,# of times salmon eaten in past 30 days,NA
+DRD370N,Sardines eaten during past 30 days,NA
+DRD370NQ,# of times sardines eaten past 30 days,NA
+DRD370O,Sea bass eaten during past 30 days,NA
+DRD370OQ,# of times sea bass eaten past 30 days,NA
+DRD370P,Shark eaten during past 30 days,NA
+DRD370PQ,# of times shark eaten in past 30 days,NA
+DRD370Q,Swordfish eaten during past 30 days,NA
+DRD370QQ,# of times swordfish eaten past 30 days,NA
+DRD370R,Trout eaten during past 30 days,NA
+DRD370RQ,# of times trout eaten in past 30 days,NA
+DRD370S,Walleye eaten during past 30 days,NA
+DRD370SQ,# of times walleye eaten in past 30 days,NA
+DRD370T,Other fish eaten during past 30 days,NA
+DRD370TQ,# of times other fish eaten past 30 days,NA
+DRD370U,Other unknown fish eaten in past 30 days,NA
+DRD370UQ,# of times other unknown fish eaten,NA
+DRD370V,Refused on fish eaten past 30 days,NA
+WTDRD1.y,WTDRD1.y,NA
+WTDR2D.y,WTDR2D.y,NA
+DR2DRSTZ,DR2DRSTZ,NA
+DR2EXMER,DR2EXMER,NA
+DRABF.y,DRABF.y,NA
+DRDINT.y,DRDINT.y,NA
+DR2DBIH,DR2DBIH,NA
+DR2DAY,DR2DAY,NA
+DR2LANG,DR2LANG,NA
+DR2MNRSP,DR2MNRSP,NA
+DR2HELPD,DR2HELPD,NA
+DR2TNUMF,DR2TNUMF,NA
+DR2TKCAL,DR2TKCAL,NA
+DR2TPROT,DR2TPROT,NA
+DR2TCARB,DR2TCARB,NA
+DR2TSUGR,DR2TSUGR,NA
+DR2TFIBE,DR2TFIBE,NA
+DR2TTFAT,DR2TTFAT,NA
+DR2TSFAT,DR2TSFAT,NA
+DR2TMFAT,DR2TMFAT,NA
+DR2TPFAT,DR2TPFAT,NA
+DR2TCHOL,DR2TCHOL,NA
+DR2TATOC,DR2TATOC,NA
+DR2TATOA,DR2TATOA,NA
+DR2TRET,DR2TRET,NA
+DR2TVARA,DR2TVARA,NA
+DR2TACAR,DR2TACAR,NA
+DR2TBCAR,DR2TBCAR,NA
+DR2TCRYP,DR2TCRYP,NA
+DR2TLYCO,DR2TLYCO,NA
+DR2TLZ,DR2TLZ,NA
+DR2TVB1,DR2TVB1,NA
+DR2TVB2,DR2TVB2,NA
+DR2TNIAC,DR2TNIAC,NA
+DR2TVB6,DR2TVB6,NA
+DR2TFOLA,DR2TFOLA,NA
+DR2TFA,DR2TFA,NA
+DR2TFF,DR2TFF,NA
+DR2TFDFE,DR2TFDFE,NA
+DR2TCHL,DR2TCHL,NA
+DR2TVB12,DR2TVB12,NA
+DR2TB12A,DR2TB12A,NA
+DR2TVC,DR2TVC,NA
+DR2TVD,DR2TVD,NA
+DR2TVK,DR2TVK,NA
+DR2TCALC,DR2TCALC,NA
+DR2TPHOS,DR2TPHOS,NA
+DR2TMAGN,DR2TMAGN,NA
+DR2TIRON,DR2TIRON,NA
+DR2TZINC,DR2TZINC,NA
+DR2TCOPP,DR2TCOPP,NA
+DR2TSODI,DR2TSODI,NA
+DR2TPOTA,DR2TPOTA,NA
+DR2TSELE,DR2TSELE,NA
+DR2TCAFF,DR2TCAFF,NA
+DR2TTHEO,DR2TTHEO,NA
+DR2TALCO,DR2TALCO,NA
+DR2TMOIS,DR2TMOIS,NA
+DR2TS040,DR2TS040,NA
+DR2TS060,DR2TS060,NA
+DR2TS080,DR2TS080,NA
+DR2TS100,DR2TS100,NA
+DR2TS120,DR2TS120,NA
+DR2TS140,DR2TS140,NA
+DR2TS160,DR2TS160,NA
+DR2TS180,DR2TS180,NA
+DR2TM161,DR2TM161,NA
+DR2TM181,DR2TM181,NA
+DR2TM201,DR2TM201,NA
+DR2TM221,DR2TM221,NA
+DR2TP182,DR2TP182,NA
+DR2TP183,DR2TP183,NA
+DR2TP184,DR2TP184,NA
+DR2TP204,DR2TP204,NA
+DR2TP205,DR2TP205,NA
+DR2TP225,DR2TP225,NA
+DR2TP226,DR2TP226,NA
+DR2_300,DR2_300,NA
+DR2_320Z,DR2_320Z,NA
+DR2_330Z,DR2_330Z,NA
+DR2BWATZ,DR2BWATZ,NA
+DR2TWS,DR2TWS,NA
+ALQ101,Had at least 12 alcohol drinks/1 yr?,NA
+ALQ110,Had at least 12 alcohol drinks/lifetime?,NA
+ALQ120Q,How often drink alcohol over past 12 mos,NA
+ALQ120U,"# days drink alcohol per wk, mo, yr",NA
+ALQ130,Avg # alcoholic drinks/day - past 12 mos,NA
+ALQ141Q,# days have 4/5 drinks - past 12 mos,NA
+ALQ141U,"# days per week, month, year?",NA
+ALQ151,Ever have 4/5 or more drinks every day?,NA
+ALQ155,How many years did you drink every day?,NA
+FSD032A,HH Worried run out of food,NA
+FSD032B,HH Food didn't last,NA
+FSD032C,HH Couldn't afford balanced meals,NA
+FSD041,HH Adults cut size or skip meals,NA
+FSD052,HH How often adults cut size/skip meals,NA
+FSD061,HH Eat less than should,NA
+FSD071,"HH Hungry, but didn't eat",NA
+FSD081,"HH Lost weight, no money for food",NA
+FSD092,HH Adults not eat whole day,NA
+FSD102,HH How often adults not eat for day,NA
+FSD032D,HH Relied on low-cost food for child,NA
+FSD032E,HH Couldn't feed child balanced meal,NA
+FSD032F,HH Child not eating enough,NA
+FSD111,HH Cut size of child meals,NA
+FSD122,HH Child skip meals,NA
+FSD132,HH How often child skip meals,NA
+FSD141,HH Child hungry in last 12 months,NA
+FSD146,HH Child not eat whole day,NA
+FSDHH,Household food security category,NA
+FSDAD,Adult food security category,NA
+FSDCH,Child food security category,NA
+FSD151,HH Emergency food received,NA
+FSQ165,HH FS benefit: ever received,NA
+FSQ171,HH FS benefit: receive in last 12 months,NA
+FSD230,HH FS benefit: currently receive,NA
+FSD225,HH FS benefit: time since last received,NA
+FSQ235,HH FS benefit: amount received last time,NA
+FSQ162,HH WIC benefit: receive in last 12 month,NA
+FSD650ZC,CH WIC benefit: receive in last 12 month,NA
+FSD660ZC,CH WIC benefit: currently receive,NA
+FSD675,CH WIC benefit: received in infancy,NA
+FSD680,CH WIC benefit: received b/w 1-4 yrs old,NA
+FSD670ZC,CH WIC benefit: # of months received,NA
+FSQ690,CH WIC benefit: Mom received while preg.,NA
+FSQ695,CH WIC benefit: starting month of preg.,NA
+FSD650ZW,WM WIC benefit: receive in last 12 month,NA
+FSD660ZW,WM WIC benefit: currently receive,NA
+FSD670ZW,WM WIC benefit: # of months received,NA
+INQ020,Income from wages/salaries,NA
+INQ012,Income from self employment,NA
+INQ030,Income from Social Security or RR,NA
+INQ060,Income from other disability pension,NA
+INQ080,Income from retirement/survivor pension,NA
+INQ090,Income from Supplemental Security Income,NA
+INQ132,Income from state/county cash assistance,NA
+INQ140,Income from interest/dividends or rental,NA
+INQ150,Income from other sources,NA
+IND235,Monthly family income,NA
+INDFMMPI,Family monthly poverty level index,NA
+INDFMMPC,Family monthly poverty level category,NA
+INQ244,Family has savings more than $5000,NA
+IND247,Total savings/cash assets for the family,NA
+HIQ011,Covered by health insurance,NA
+HIQ031A,Covered by private insurance,NA
+HIQ031B,Covered by Medicare,NA
+HIQ031C,Covered by Medi-Gap,NA
+HIQ031D,Covered by Medicaid,NA
+HIQ031E,Covered by SCHIP,NA
+HIQ031F,Covered by military health care,NA
+HIQ031G,Covered by Indian Health Service,NA
+HIQ031H,Covered by state-sponsored health plan,NA
+HIQ031I,Covered by other government insurance,NA
+HIQ031J,Covered by single service plan,NA
+HIQ031AA,No coverage of any type,NA
+HIQ260,Have Medicare?,NA
+HIQ105,Insurance card available or not,NA
+HIQ270,Do plans cover prescriptions?,NA
+HIQ210,Time when no insurance in past year?,NA
+DPQ010,Have little interest in doing things,NA
+DPQ020,"Feeling down, depressed, or hopeless",NA
+DPQ030,Trouble sleeping or sleeping too much,NA
+DPQ040,Feeling tired or having little energy,NA
+DPQ050,Poor appetite or overeating,NA
+DPQ060,Feeling bad about yourself,NA
+DPQ070,Trouble concentrating on things,NA
+DPQ080,Moving or speaking slowly or too fast,NA
+DPQ090,Thought you would be better off dead,NA
+DPQ100,Difficulty these problems have caused,NA
+PAQ706,Days physically active at least 60 min,NA
+PAQ605,Vigorous work activity,NA
+PAQ610,Days vigorous work,NA
+PAD615,Minutes vigorous-intensity work,NA
+PAQ620,Moderate work activity,NA
+PAQ625,Number of days moderate work,NA
+PAD630,Minutes moderate-intensity work,NA
+PAQ635,Walk or bicycle,NA
+PAQ640,Number of days walk or bicycle,NA
+PAD645,Minutes walk/bicycle for transportation,NA
+PAQ650,Vigorous recreational activities,NA
+PAQ655,Days vigorous recreational activities,NA
+PAD660,Minutes vigorous recreational activities,NA
+PAQ665,Moderate recreational activities,NA
+PAQ670,Days moderate recreational activities,NA
+PAD675,Minutes moderate recreational activities,NA
+PAD680,Minutes sedentary activity,NA
+PAQ710,Hours watch TV or videos past 30 days,NA
+PAQ715,Hours use computer past 30 days,NA
+PAAQUEX,Questionnaire source flag for weighting,NA
+DR1STY,Salt used at table yesterday?,NA
+DR1SKY,Type of salt used yesterday,NA
+DR2STY,DR2STY,NA
+DR2SKY,DR2SKY,NA
+ALQ160,# days have 4/5 or more drinks in 2 hrs,NA
+FSQ012,FSQ012,NA
+FSD012N,HH FS benefit: number people received,NA
+PAQ722,Any physical activities past 7 days,NA
+PAQ724A,Physical activity aerobics,NA
+PAQ724B,Physical activity baseball,NA
+PAQ724C,Physical activity basketball,NA
+PAQ724D,Physical activity bike riding,NA
+PAQ724E,Physical activity cheerleading,NA
+PAQ724F,Physical activity dance,NA
+PAQ724G,Physical activity field hockey,NA
+PAQ724H,Physical activity football,NA
+PAQ724I,Physical activity golf,NA
+PAQ724J,Physical activity gymnastics,NA
+PAQ724K,Physical activity hiking,NA
+PAQ724L,Physical activity ice hockey,NA
+PAQ724M,Physical activity ice skating,NA
+PAQ724N,Physical activity jumping rope,NA
+PAQ724O,Physical activity lacrosse,NA
+PAQ724P,Physical activity martial arts,NA
+PAQ724Q,Physical activity playing games,NA
+PAQ724R,Physical activity roller blading,NA
+PAQ724S,Physical activity running,NA
+PAQ724T,Physical activity scooter riding,NA
+PAQ724U,Physical activity skateboarding,NA
+PAQ724V,Physical activity soccer,NA
+PAQ724W,Physical activity swimming,NA
+PAQ724X,Physical activity tennis,NA
+PAQ724Y,Physical activity track & field,NA
+PAQ724Z,Physical activity volleyball,NA
+PAQ724AA,Physical activity walking,NA
+PAQ724AB,Physical activity wrestling,NA
+PAQ724AC,Physical activity frisbee,NA
+PAQ724AD,Physical activity backyard games,NA
+PAQ724AE,Physical activity trampoline,NA
+PAQ724AF,Physical activity horseback riding,NA
+PAQ724CM,Physical activity other,NA
+PAQ731,Days played active video games,NA
+PAD733,Minutes play active video games,NA
+PAQ677,Past wk # days cardiovascular exercise,NA
+PAQ678,Past wk # days strengthened muscles,NA
+PAQ740,Use school facilities at lunch,NA
+PAQ742,Use school facilities for physical activ,NA
+PAQ744,Have PE during school days?,NA
+PAQ746,How often do you have PE or gym?,NA
+PAQ748,How long is the PE or gym class?,NA
+PAQ755,Participate in school sports?,NA
+PAQ759A,Participate in baseball,NA
+PAQ759B,Participate in basketball,NA
+PAQ759C,Participate in bocce ball,NA
+PAQ759D,Participate in cheerleading,NA
+PAQ759E,Participate in football,NA
+PAQ759F,Participate in golf,NA
+PAQ759G,Participate in gymnastics,NA
+PAQ759H,Participate in hockey,NA
+PAQ759I,Participate in lacrosse,NA
+PAQ759J,Participate in soccer,NA
+PAQ759K,Participate in swimming/diving,NA
+PAQ759L,Participate in tennis,NA
+PAQ759M,Participate in track and field,NA
+PAQ759N,Participate in volleyball,NA
+PAQ759O,Participate in wrestling,NA
+PAQ759P,Participate in other specify,NA
+PAQ759Q,Participate in dance,NA
+PAQ759R,Participate in frisbee,NA
+PAQ759S,Participate in running,NA
+PAQ759T,Participate in trampoline,NA
+PAQ759U,Participate in martial arts,NA
+PAQ759V,Participate in walking,NA
+PAQ762,Do you have recess during school?,NA
+PAQ764,How often do you have recess?,NA
+PAQ766,How long is the recess period?,NA
+PAQ679,How much exercise for good health,NA
+PAQ750,Enjoy participating in PE or recess,NA
+PAQ770,Receive physical fitness award past yr,NA
+PAQ772A,Fitness award Fitnessgram,NA
+PAQ772B,Fitness award President's Challenge,NA
+PAQ772C,Fitness award other specify,NA
+DR1MRESP,DR1MRESP,NA
+DR1HELP,DR1HELP,NA
+DR2MRESP,DR2MRESP,NA
+DR2HELP,DR2HELP,NA
+FSD165N,HH FS benefit: # of people ever received,NA
+FSD230N,HH FS benefit: #people currently receive,NA
+FSD795,HH FS benefit: # of months received,NA
+FSD235,FSD235,NA
+FSD855,HH FS benefit: anticipate will receive,NA
+FSD860,HH FS benefit: time will receive,NA
+FSQ865,HH FS benefit: amount will receive,NA
+FSQ760,HH WIC benefit: received in last 30 days,NA
+FSD760N,HH WIC benefit: no. people received,NA
+FSQ653,CH WIC benefit: ever received,NA
+FSD652ZW,WM WIC benefit: receive in latest preg.,NA
+FSD672ZW,WM WIC benefit: starting month of preg.,NA
+FSD652CW,WM WIC benefit: receive post-partum,NA
+INQ300,"Family has savings more than $20,000",NA
+IND310,IND310,NA
+INQ320,How do you get to the grocery store?,NA
+DMDYRUSZ,DMDYRUSZ,NA
+DMDMARTZ,DMDMARTZ,NA
+WTINTPRP,Full sample interview weight,NA
+WTMECPRP,Full sample MEC exam weight,NA
+WTDRD1PP.x,WTDRD1PP.x,NA
+WTDR2DPP.x,WTDR2DPP.x,NA
+DR1TWSZ,DR1TWSZ,NA
+WTDRD1PP.y,WTDRD1PP.y,NA
+WTDR2DPP.y,WTDR2DPP.y,NA
+DR2TWSZ,DR2TWSZ,NA
+ALQ111,Ever had a drink of any kind of alcohol,NA
+ALQ121,Past 12 mo how often drink alcoholic bev,NA
+ALQ142,# days have 4 or 5 drinks/past 12 mos,NA
+ALQ270,# times 4-5 drinks in 2hrs/past 12 mos,NA
+ALQ280,# times 8+ drinks in 1 day/past 12 mos,NA
+ALQ290,# times 12+ drinks in 1 day/past 12 mos,NA
+ALQ170,Past 30 days # times 4-5 drinks on an oc,NA
+FSD162,FSD162,NA
+HIQ032A,HIQ032A,NA
+HIQ032B,HIQ032B,NA
+HIQ032C,HIQ032C,NA
+HIQ032D,HIQ032D,NA
+HIQ032E,Covered by CHIP,NA
+HIQ032H,HIQ032H,NA
+HIQ032I,HIQ032I,NA
+HIQ032J,Not covered by any insurance,NA
