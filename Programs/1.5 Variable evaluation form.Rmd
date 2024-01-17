@@ -18,8 +18,8 @@ library(readr)
 
 ```{r}
 # set working directory
-dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
-setwd(paste0(dir,"/Data"))
+#dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"Data"))
 load("NHANES_FULL.Rdata")
 load(paste0(dir,"/Raw Data/nhanes_key.rda"))
 # extract variable names 
