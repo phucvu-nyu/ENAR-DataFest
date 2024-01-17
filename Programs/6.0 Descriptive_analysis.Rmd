@@ -1,5 +1,5 @@
 ---
-title: "5.0 Descriptive chart"
+title: "6.0 Descriptive chart"
 author: "Phuc Quang Vu pqv9968"
 date: "2024-01-13"
 output: pdf_document
