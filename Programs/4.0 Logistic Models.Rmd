@@ -46,7 +46,8 @@ var_keep_hypertension <- c("svy_year","demo_race","cc_smoke", "cc_bmi", "cc_diab
 
 ```{r}
 #Loading data with NAs (since NA removing process in 2.0 may remove observations that have full information on keeping variables)
-setwd("/Users/quangphucvu/Desktop/ENAR/Data")
+#dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"Data"))
 load("data_hyper_acc.rdata")
 load("data_hyper_2011.rdata")
 data_hyper_acc <- within(data_hyper_acc, DPQ <- relevel(DPQ, ref = "Minimal"))
@@ -210,6 +211,7 @@ summary(model_hypertention)
 
 
 ```{r}
+#subset data for prediction
 data_hist_2011<-data_hyper_2011%>%
   select(all_of(var_keep_2013))
 
@@ -232,14 +234,19 @@ hist_2017<-predict(model_2013,data_hist_2017)
 ```
 
 ```{r}
-hist_data_2011<-data.frame(cycle=rep("2011-2012",length(hist_2011)),logit=hist_2011)
-hist_data_2013<-data.frame(cycle=rep("2013-2014",length(hist_2013)),logit=hist_2013)
-hist_data_2015<-data.frame(cycle=rep("2015-2016",length(hist_2015)),logit=hist_2015)
-hist_data_2017<-data.frame(cycle=rep("2017-2020",length(hist_2017)),logit=hist_2017)
-hist_data<-rbind(hist_data_2011,hist_data_2013,hist_data_2015,hist_data_2017)
-a<-ggplot(hist_data, aes(x = logit.link, line = cycle,color=cycle)) + geom_density(alpha = 0.3)+xlim(c(-10,5))+xlab("Predicted logit")+ylab("Density")+
+#making dataframe for plot
+hist_data_2011_test<-data.frame(cycle=rep("2011-2012",length(hist_2011)),logit=hist_2011,weight=na.omit(data_hist_2011)$svy_weight_mec)
+hist_data_2013_test<-data.frame(cycle=rep("2013-2014",length(hist_2013)),logit=hist_2013,weight=na.omit(clean_2013)$svy_weight_mec)
+hist_data_2015_test<-data.frame(cycle=rep("2015-2016",length(hist_2015)),logit=hist_2015,weight=na.omit(data_hist_2015)$svy_weight_mec)
+hist_data_2017_test<-data.frame(cycle=rep("2017-2020",length(hist_2017)),logit=hist_2017,weight=na.omit(data_hist_2017)$svy_weight_mec)
+
+# making plot
+hist_data_test<-rbind(hist_data_2011_test,hist_data_2013_test,hist_data_2015_test,hist_data_2017_test)
+hist_plot<-ggplot(hist_data_test, aes(x = logit.link, line = cycle,color=cycle,weights=weight)) + geom_density(alpha = 0.3)+xlim(c(-10,5))+xlab("Predicted logit")+ylab("Density")+
   theme(text = element_text(size = 20))
-ggsave("/Users/quangphucvu/Downloads/test.png", a, height = 8, width = 10, dpi = 1080)
+
+#saving plot
+ggsave(paste0(dir,"Tables and Figures/picture2.png"), hist_plot, height = 8, width = 10, dpi = 1080)
 ```
 
 # Making table of coefficients
@@ -286,7 +293,7 @@ Table_1<-coef_2013_2020 %>%
   full_join(coef_2015,by="Variables",suffix = c("", ".2015")) %>%
   full_join(coef_2017,by="Variables",suffix = c("", ".2017")) %>%
   full_join(coef_hypertension,by="Variables",suffix = c("", ".hypertention_aware"))
-write.csv(Table_1,"/Users/quangphucvu/Desktop/ENAR/Tables and Figures/Coef_table.csv")
+write.csv(Table_1,paste0(dir,"Tables and Figures/Coef_table.csv"))
 ```
 
 
