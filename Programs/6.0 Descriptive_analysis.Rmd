@@ -14,7 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyr)
 library(data.table)
-setwd("/Users/quangphucvu/Desktop/ENAR/Data")
+dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"Data"))
 load("data_hyper_acc.rdata")
 load("data_hyper_2011.rdata")
 additional_cat_vars<-c("demo_age_cat","demo_race","bp_med_n_class","DPQ")
@@ -101,7 +102,7 @@ table_1<-data_frame(variables=variables,
                     mean_cycle_2017=mean_2017,
                     SE_cycle_2017=SE_2017
                     )
-write.csv(table_1,"table_3.csv")
+
 ```
 
 ```{r}
@@ -187,42 +188,20 @@ plot15<-bar(index=55,y_col="Percentage",scale=100,title="Hypertension awareness"
 
 ```
 ```{r}
-a<-grid.arrange(plot6,plot15,plot1,plot2,plot5,plot4,plot3,plot7,plot8,plot9,plot10,plot11,plot12,plot13,plot14,ncol=3)
-b<-grid.arrange(plot1,plot15,plot6,plot8,plot12,plot9,ncol=2)
-c<-grid.arrange(plot1,plot15,plot6,plot8,ncol=2)
-```
-```{r}
-ggsave("/Users/quangphucvu/Downloads/test.png", a, height = 10, width = 8, dpi = 1080)
-ggsave("/Users/quangphucvu/Downloads/figure_1.png", b, height = 12, width = 8, dpi = 1080)
-ggsave("/Users/quangphucvu/Downloads/figure_ppt.png", c, height = 12, width = 12, dpi = 1500)
-```
 
-```{r}
-plot1+theme(text = element_text(size = 20),
-        plot.title = element_text(size=16, face= "bold", colour= "black" ),
-    axis.title.x = element_text(size=16, face="bold", colour = "black"),    
-    axis.title.y = element_text(size=16, face="bold", colour = "black"))
+figure_1<-grid.arrange(plot1,plot15,plot6,plot8,plot12,plot9,ncol=2)
+
 ```
 ```{r}
-plot6+theme(text = element_text(size = 20),
-        plot.title = element_text(size=16, face= "bold", colour= "black" ),
-    axis.title.x = element_text(size=16, face="bold", colour = "black"),    
-    axis.title.y = element_text(size=16, face="bold", colour = "black"))
-```
-```{r}
-plot8+theme(text = element_text(size = 20),
-        plot.title = element_text(size=16, face= "bold", colour= "black" ),
-    axis.title.x = element_text(size=16, face="bold", colour = "black"),    
-    axis.title.y = element_text(size=16, face="bold", colour = "black"))
+ggsave(paste0(dir,"Tables and Figures/figure_1.png"), figure_1, height = 12, width = 8, dpi = 1080)
+
 ```
 
 
-```{r}
-plot15+theme(text = element_text(size = 20),
-        plot.title = element_text(size=16, face= "bold", colour= "black" ),
-    axis.title.x = element_text(size=16, face="bold", colour = "black"),    
-    axis.title.y = element_text(size=16, face="bold", colour = "black"))
-```
+
+
+
+
 
 
 
