@@ -1,0 +1,119 @@
+---
+title: "1.Merging additional Nhanes Data"
+author: "Phuc Quang Vu pqv9968"
+date: "2024-01-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading library
+```{r,message=FALSE}
+library(haven)
+library(dplyr)
+library(tidyverse)
+library(sjmisc)
+
+library(haven)
+library(readxl)
+library(glmnet)
+#install.packages("caret")
+library(caret)
+
+```
+
+
+
+# Merging nhanes datasets
+
+Step 1: loading individual data sets
+```{r}
+# set working directory
+#dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"Raw Data"))
+# Loading data 2011-2012
+#warning diet datasets does not have salt intake
+demo_2011<-read_xpt("DEMO_2011.XPT")
+diet_day_1_2011<-read_xpt("DIET_day1_2011.XPT") 
+diet_day_2_2011<-read_xpt("DIET_day2_2011.XPT")
+alcohol_2011<-read_xpt("ALCOHOL_2011.XPT")
+food_secure_2011<-read_xpt("FOOD_SECURE_2011.XPT")
+income_2011<-read_xpt("INCOME_2011.XPT")
+insurance_2011<-read_xpt("INSURANCE_2011.XPT")
+mental_2011<-read_xpt("MENTAL_2011.XPT")
+physical_2011<-read_xpt("PHYSICAL_2011.XPT")
+
+# Loading data 2013-2014
+#warning diet datasets does not have salt intake
+demo_2013<-read_xpt("DEMO_2013.XPT")
+diet_day_1_2013<-read_xpt("DIET_day1_2013.XPT") 
+diet_day_2_2013<-read_xpt("DIET_day2_2013.XPT")
+alcohol_2013<-read_xpt("ALCOHOL_2013.XPT")
+food_secure_2013<-read_xpt("FOOD_SECURE_2013.XPT")
+income_2013<-read_xpt("INCOME_2013.XPT")
+insurance_2013<-read_xpt("INSURANCE_2013.XPT")
+mental_2013<-read_xpt("MENTAL_2013.XPT")
+physical_2013<-read_xpt("PHYSICAL_2013.XPT")
+
+# Loading data 2015-2016
+#warning diet datasets does not have salt intake
+demo_2015<-read_xpt("DEMO_2015.XPT")
+diet_day_1_2015<-read_xpt("DIET_day1_2015.XPT") 
+diet_day_2_2015<-read_xpt("DIET_day2_2015.XPT")
+alcohol_2015<-read_xpt("ALCOHOL_2015.XPT")
+food_secure_2015<-read_xpt("FOOD_SECURE_2015.XPT")
+income_2015<-read_xpt("INCOME_2015.XPT")
+insurance_2015<-read_xpt("INSURANCE_2015.XPT")
+mental_2015<-read_xpt("MENTAL_2015.XPT")
+physical_2015<-read_xpt("PHYSICAL_2015.XPT")
+
+
+
+# Loading data 2017-2020
+# warning diet datasets does not have salt intake
+demo_2017<-read_xpt("DEMO_2017.XPT")
+diet_day_1_2017<-read_xpt("DIET_day1_2017.XPT") 
+diet_day_2_2017<-read_xpt("DIET_day2_2017.XPT")
+alcohol_2017<-read_xpt("ALCOHOL_2017.XPT")
+food_secure_2017<-read_xpt("FOOD_SECURE_2017.XPT")
+income_2017<-read_xpt("INCOME_2017.XPT")
+insurance_2017<-read_xpt("INSURANCE_2017.XPT")
+mental_2017<-read_xpt("MENTAL_2017.XPT")
+physical_2017<-read_xpt("PHYSICAL_2017.XPT")
+```
+
+Step 2: merging dataset
+
+
+```{r}
+# Merge dataset for 2011
+list_2011<-list(demo_2011,diet_day_1_2011,diet_day_2_2011,alcohol_2011,food_secure_2011,income_2011,insurance_2011,mental_2011,physical_2011)
+nhanes_2011<-list_2011 %>% reduce(full_join, by='SEQN')
+
+# Merge dataset for 2013
+list_2013<-list(demo_2013,diet_day_1_2013,diet_day_2_2013,alcohol_2013,food_secure_2013,income_2013,insurance_2013,mental_2013,physical_2013)
+nhanes_2013<-list_2013 %>% reduce(full_join, by='SEQN')
+
+# Merge dataset for 2015
+list_2015<-list(demo_2015,diet_day_1_2015,diet_day_2_2015,alcohol_2015,food_secure_2015,income_2015,insurance_2015,mental_2015,physical_2015)
+nhanes_2015<-list_2015 %>% reduce(full_join, by='SEQN')
+
+# Merge dataset for 2017
+list_2017<-list(demo_2017,diet_day_1_2017,diet_day_2_2017,alcohol_2017,food_secure_2017,income_2017,insurance_2017,mental_2017,physical_2017)
+nhanes_2017<-list_2017 %>% reduce(full_join, by='SEQN')
+
+
+# stack all additional nhanes datasets
+nhanes_addition<-add_rows(nhanes_2011,nhanes_2013,nhanes_2015,nhanes_2017)
+
+```
+
+Step 3: Merge with the original data set
+
+```{r}
+load(paste0(dir,"/Raw Data/nhanes_data.rda"))
+nhanes_full<-left_join(x = nhanes_data, y = nhanes_addition, by=join_by( "svy_id"== "SEQN"))
+save(nhanes_full,file=paste0(dir,"Data/NHANES_FULL.Rdata"))
+```

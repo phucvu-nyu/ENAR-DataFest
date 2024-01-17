@@ -1,0 +1,45 @@
+---
+title: "1.5 Variable evaluation form"
+author: "Phuc Quang Vu pqv9968"
+date: "2024-01-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#loading library
+library(finalfit)
+library(dplyr)
+library(readr)
+```
+
+```{r}
+# set working directory
+dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"/Data"))
+load("NHANES_FULL.Rdata")
+load(paste0(dir,"/Raw Data/nhanes_key.rda"))
+# extract variable names 
+variable_names<-colnames(nhanes_full)
+
+# extract variable labels 
+variable_labels<-extract_variable_label(nhanes_full)
+
+# create a description vector combining descriptions from "nhanes_key" and filling the remaining with NA values.
+description<- c(nhanes_key$description, rep(NA, length(variable_names) - length(nhanes_key$description)))
+
+# create a data frame named "extract" with columns for variable names and labels.
+extract<-data.frame(variable_names=variable_names,variable_labels=variable_labels)
+
+# select columns "variable" and "description"
+temp_key<-nhanes_key%>%select(variable,description)
+
+# left join the "extract" data frame with the "temp_key" using the variable names as the join condition
+extract<-left_join(x = extract, y = temp_key, by=join_by( "variable_names"== "variable"))
+
+# save the resulting data frame in excel
+write_csv(extract,file="variable_key.csv")
+```

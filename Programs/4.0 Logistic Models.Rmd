@@ -1,0 +1,292 @@
+---
+title: "4.0 Logistics models"
+author: "Phuc Quang Vu pqv9968"
+date: "2024-01-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# loading necessary library
+
+```{r,message=FALSE}
+#install.packages("survey")
+#install.packages("surveyCV")
+library(survey)
+library(surveyCV)
+library(dplyr)
+library(ggplot2)
+```
+
+# Based on results from 3.0 and 3.5, we have lists of variables (with additional svy_id and svy_mec_weight) for logistics model
+
+```{r}
+# The full model
+var_keep_full_model <- c("bp_med_combination","bp_med_ace","bp_med_aldo","bp_med_angioten","bp_med_beta","bp_med_central","bp_med_ccb","bp_med_ccb_dh","bp_med_diur_Ksparing","bp_med_diur_loop","bp_med_diur_thz","bp_med_renin_inhibitors","bp_med_vasod","cc_ckd","cc_cvd_hf","cc_cvd_any","SIALANG","INDFMPIR","HIQ011","avg_DR1TSUGR","avg_DR1TFIBE","avg_DR1TATOC","avg_DR1TATOA","avg_DR1TRET","avg_DR1TCRYP","avg_DR1TLZ","avg_DR1TNIAC","avg_DR1TVD","avg_DR1TSELE","avg_DR1TCAFF","avg_DR1TTHEO","avg_DR1TALCO","avg_DR1TMOIS","avg_DR1TM181","avg_DR1TP204","avg_DR1BWATZ","follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat", "ALQ130", "demo_race", "demo_gender","cc_diabetes","cc_bmi","svy_year","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+
+#cycle 2013
+var_keep_2013 <- c("bp_med_ace", "bp_med_aldo", "bp_med_angioten", "bp_med_beta", "bp_med_ccb_dh",  "bp_med_diur_thz","bp_med_renin_inhibitors", "cc_ckd", "cc_cvd_mi", "cc_cvd_stroke", "cc_cvd_ascvd", "cc_cvd_any", "SIALANG",  "avg_DR1TACAR", "avg_DR1TLZ","avg_DR1TCHL","avg_DR1TTHEO","avg_DR1TM221","follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat", "ALQ130","demo_race","demo_gender","cc_diabetes","cc_bmi","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+
+#cycle 2011
+var_keep_2011 <- c("bp_med_ace","bp_med_aldo","bp_med_alpha", "bp_med_angioten","bp_med_beta","bp_med_central","bp_med_ccb_ndh", "bp_med_diur_loop","bp_med_diur_thz", "bp_med_vasod", "cc_ckd", "cc_cvd_mi","cc_cvd_stroke", "DMDCITZN", "DMDMARTL","SIALANG", "INDHHIN2", "INDFMPIR", "FSDAD", "avg_DR1TCARB", "avg_DR1TVB2", "avg_DR1TNIAC","avg_DR1TFF","avg_DR1TVB12","avg_DR1TSODI","avg_DR1TCAFF","avg_DR1TTHEO", "avg_DR1TMOIS","avg_DR1TS120","avg_DR1TM201","avg_DR1TM221","avg_DR1TP205","avg_DR1_300","avg_DR1_320Z", "avg_DR1_330Z", "follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+
+#cycle 2015
+var_keep_2015 <- c("bp_med_combination", "bp_med_ace", "bp_med_aldo","bp_med_angioten", "bp_med_beta", "bp_med_central","bp_med_diur_Ksparing", "bp_med_diur_loop", "bp_med_diur_thz", "cc_ckd", "cc_cvd_chd", "cc_cvd_hf", "cc_cvd_any","SIALANG",  "INDFMPIR", "HIQ270", "avg_DR1TRET","avg_DR1TALCO", "avg_DR1TP225", "avg_DR1_300", "avg_DR1_320Z", "follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","ALQ130","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+
+#cycle 2017
+var_keep_2017 <- c("bp_med_combination", "bp_med_ace", "bp_med_aldo", "bp_med_angioten", "bp_med_beta", "bp_med_central","bp_med_ccb", "bp_med_ccb_ndh","bp_med_diur_Ksparing","bp_med_diur_loop", "bp_med_diur_thz", "bp_med_vasod",  "cc_ckd","cc_cvd_mi","SIALANG", "FSDAD", "INDFMPIR","HIQ270", "avg_DR1TFIBE","avg_DR1TMFAT","avg_DR1TATOA", "avg_DR1TRET", "avg_DR1TVARA","avg_DR1TACAR","avg_DR1TVB6","avg_DR1TFF","avg_DR1TVD", "avg_DR1TCAFF","avg_DR1TALCO","avg_DR1TMOIS", "avg_DR1TM181","avg_DR1TP182", "follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","ALQ130","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+
+
+var_keep_hypertension <- c("svy_year","demo_race","cc_smoke", "cc_bmi", "cc_diabetes", "cc_ckd", "cc_cvd_chd", "cc_cvd_stroke","cc_cvd_ascvd", "cc_cvd_hf", "cc_cvd_any","DPQ","ALQ130","FSDAD","HIQ011","HIQ270", "avg_DR1TCARB","avg_DR1TATOA","avg_DR1TACAR","avg_DR1TRET", "avg_DR1TLYCO","avg_DR1TLZ","avg_DR1TFA", "avg_DR1TVC","avg_DR1TPHOS","avg_DR1TTHEO","avg_DR1TS120","avg_DR1TS160","avg_DR1TM221","avg_DR1TP205","avg_DR1TP226", "demo_age_cat","demo_gender","DMDEDUC2","svy_id","svy_strata", "svy_weight_mec", "htn_aware")
+```
+
+# Loading data
+
+```{r}
+#Loading data with NAs (since NA removing process in 2.0 may remove observations that have full information on keeping variables)
+setwd("/Users/quangphucvu/Desktop/ENAR/Data")
+load("data_hyper_acc.rdata")
+load("data_hyper_2011.rdata")
+data_hyper_acc <- within(data_hyper_acc, DPQ <- relevel(DPQ, ref = "Minimal"))
+data_hyper_acc <- within(data_hyper_acc, INDFMPIR <- relevel(INDFMPIR, ref = "Poor"))
+data_hyper_2011 <- within(data_hyper_2011, DPQ <- relevel(DPQ, ref = "Minimal"))
+data_hyper_2011 <- within(data_hyper_2011, INDFMPIR <- relevel(INDFMPIR, ref = "Poor"))
+data_2013_2020<-data_hyper_acc%>%
+  select(all_of(var_keep_full_model))
+
+data_2011<-data_hyper_2011%>%
+  select(all_of(var_keep_2011))
+
+
+data_2013<-data_hyper_acc%>%
+  filter(svy_year=="2013-2014")%>%
+  select(all_of(var_keep_2013))
+
+data_2015<-data_hyper_acc%>%
+  filter(svy_year=="2015-2016")%>%
+  select(all_of(var_keep_2015))
+
+data_2017<-data_hyper_acc%>%
+  filter(svy_year=="2017-2020")%>%
+  select(all_of(var_keep_2017))
+
+data_hypertension<-data_hyper_acc%>%
+  select(all_of(var_keep_hypertension))
+
+# Removing NAs
+clean_2011<-na.omit(data_2011)
+
+clean_2013<-na.omit(data_2013)
+
+clean_2015<-na.omit(data_2015)
+
+clean_2017<-na.omit(data_2017)
+
+clean_2013_2020<-na.omit(data_2013_2020)
+
+clean_hypertension<-na.omit(data_hypertension)
+
+```
+
+
+# Creating designs object
+
+```{r}
+
+nhanes_2011 <- svydesign(id      = ~svy_id,
+                          strata  = ~svy_strata,
+                          weights = ~svy_weight_mec,
+                          nest    = TRUE,
+                          data    = clean_2011)
+
+nhanes_2013 <- svydesign(id      = ~svy_id,
+                          strata  = ~svy_strata,
+                          weights = ~svy_weight_mec,
+                          nest    = TRUE,
+                          data    = clean_2013)
+
+nhanes_2015 <- svydesign(id      = ~svy_id,
+                          strata  = ~svy_strata,
+                          weights = ~svy_weight_mec,
+                          nest    = TRUE,
+                          data    = clean_2015)
+
+nhanes_2017 <- svydesign(id      = ~svy_id,
+                          strata  = ~svy_strata,
+                          weights = ~svy_weight_mec,
+                          nest    = TRUE,
+                          data    = clean_2017)
+
+nhanes_2013_2020 <- svydesign(id      = ~svy_id,
+                          strata  = ~svy_strata,
+                          weights = ~svy_weight_mec,
+                          nest    = TRUE,
+                          data    = clean_2013_2020)
+
+nhanes_hypertension <- svydesign(id      = ~svy_id,
+                          strata  = ~svy_strata,
+                          weights = ~svy_weight_mec,
+                          nest    = TRUE,
+                          data    = clean_hypertension)
+
+```
+
+# Logistic Models
+
+```{r}
+model_2013_2020<- svyglm(bp_control_accaha ~ bp_med_combination+bp_med_ace+bp_med_aldo+bp_med_angioten+bp_med_beta+bp_med_central+bp_med_ccb+bp_med_ccb_dh+bp_med_diur_Ksparing+bp_med_diur_loop+bp_med_diur_thz+bp_med_renin_inhibitors+bp_med_vasod+cc_ckd+cc_cvd_hf+cc_cvd_any+SIALANG+INDFMPIR+HIQ011+avg_DR1TSUGR+avg_DR1TFIBE+avg_DR1TATOC+avg_DR1TATOA+avg_DR1TRET+avg_DR1TCRYP+avg_DR1TLZ+avg_DR1TNIAC+avg_DR1TVD+avg_DR1TSELE+avg_DR1TCAFF+avg_DR1TTHEO+avg_DR1TALCO+avg_DR1TMOIS+avg_DR1TM181+avg_DR1TP204+avg_DR1BWATZ+follow_activity_guideline+ DPQ+ bp_med_n_class+ demo_age_cat+ ALQ130+ demo_race+ demo_gender+cc_diabetes+cc_bmi+svy_year+cc_smoke+DMDEDUC2+htn_aware,
+          family = quasibinomial(),
+          data   = clean_2013_2020,
+          design = nhanes_2013_2020
+          )
+
+
+model_2011<- svyglm(bp_control_accaha ~bp_med_ace+bp_med_aldo+bp_med_alpha+ bp_med_angioten+bp_med_beta+bp_med_central+bp_med_ccb_ndh+ bp_med_diur_loop+bp_med_diur_thz+ bp_med_vasod+ cc_ckd+ cc_cvd_mi+cc_cvd_stroke+ DMDCITZN+ DMDMARTL+SIALANG+ INDHHIN2+ INDFMPIR+ FSDAD+ avg_DR1TCARB+ avg_DR1TVB2+ avg_DR1TNIAC+avg_DR1TFF+avg_DR1TVB12+avg_DR1TSODI+avg_DR1TCAFF+avg_DR1TTHEO+ avg_DR1TMOIS+avg_DR1TS120+avg_DR1TM201+avg_DR1TM221+avg_DR1TP205+avg_DR1_300+avg_DR1_320Z+ avg_DR1_330Z+ follow_activity_guideline+ DPQ+ bp_med_n_class+ demo_age_cat+  demo_race+ demo_gender+cc_diabetes+cc_bmi+cc_smoke+DMDEDUC2+htn_aware,
+          family = quasibinomial(),
+          data   = clean_2011,
+          design = nhanes_2011
+          )
+
+
+model_2013<- svyglm(bp_control_accaha ~bp_med_ace+ bp_med_aldo+ bp_med_angioten+ bp_med_beta+ bp_med_ccb_dh+  bp_med_diur_thz+bp_med_renin_inhibitors+ cc_ckd+ cc_cvd_mi+ cc_cvd_stroke+ cc_cvd_ascvd+ cc_cvd_any+ SIALANG+  avg_DR1TACAR+ avg_DR1TLZ+avg_DR1TCHL+avg_DR1TTHEO+avg_DR1TM221+follow_activity_guideline+ DPQ+ bp_med_n_class+ demo_age_cat+ ALQ130+demo_race+demo_gender+cc_diabetes+cc_bmi+cc_smoke+DMDEDUC2+htn_aware,
+          family = quasibinomial(),
+          data   = clean_2013,
+          design = nhanes_2013
+          )
+
+model_2015<- svyglm(bp_control_accaha ~bp_med_combination+ bp_med_ace+ bp_med_aldo+bp_med_angioten+ bp_med_beta+ bp_med_central+bp_med_diur_Ksparing+ bp_med_diur_loop+ bp_med_diur_thz+ cc_ckd+ cc_cvd_chd+ cc_cvd_hf+ cc_cvd_any+SIALANG+  INDFMPIR+ HIQ270+ avg_DR1TRET+avg_DR1TALCO+ avg_DR1TP225+ avg_DR1_300+ avg_DR1_320Z+ follow_activity_guideline+ DPQ+ bp_med_n_class+ demo_age_cat+  demo_race+ demo_gender+cc_diabetes+cc_bmi+ALQ130+cc_smoke+DMDEDUC2+htn_aware,
+          family = quasibinomial(),
+          data   = clean_2015,
+          design = nhanes_2015
+          )
+
+
+model_2017<- svyglm(bp_control_accaha ~ bp_med_combination+ bp_med_ace+ bp_med_aldo+ bp_med_angioten+ bp_med_beta+ bp_med_central+bp_med_ccb+ bp_med_ccb_ndh+bp_med_diur_Ksparing+bp_med_diur_loop+ bp_med_diur_thz+ bp_med_vasod+  cc_ckd+cc_cvd_mi+SIALANG+ FSDAD+ INDFMPIR+HIQ270+ avg_DR1TFIBE+avg_DR1TMFAT+avg_DR1TATOA+ avg_DR1TRET+ avg_DR1TVARA+avg_DR1TACAR+avg_DR1TVB6+avg_DR1TFF+avg_DR1TVD+ avg_DR1TCAFF+avg_DR1TALCO+avg_DR1TMOIS+ avg_DR1TM181+avg_DR1TP182+ follow_activity_guideline+ DPQ+ bp_med_n_class+ demo_age_cat+  demo_race+ demo_gender+cc_diabetes+cc_bmi+ALQ130+cc_smoke+DMDEDUC2+htn_aware,
+          family = quasibinomial(),
+          data   = clean_2017,
+          design = nhanes_2017
+          )
+
+model_hypertention<- svyglm( htn_aware ~ svy_year+demo_race+cc_smoke+ cc_bmi+ cc_diabetes+ cc_ckd+ cc_cvd_chd+ cc_cvd_stroke+cc_cvd_ascvd+ cc_cvd_hf+ cc_cvd_any+DPQ+ALQ130+FSDAD+HIQ011+HIQ270+ avg_DR1TCARB+avg_DR1TATOA+avg_DR1TACAR+avg_DR1TRET+ avg_DR1TLYCO+avg_DR1TLZ+avg_DR1TFA+ avg_DR1TVC+avg_DR1TPHOS+avg_DR1TTHEO+avg_DR1TS120+avg_DR1TS160+avg_DR1TM221+avg_DR1TP205+avg_DR1TP226+ demo_age_cat+demo_gender+DMDEDUC2,
+          family = quasibinomial(),
+          data   = clean_hypertension,
+          design = nhanes_hypertension 
+          )
+
+
+
+```
+
+
+```{r}
+summary(model_2011)
+```
+
+```{r}
+summary(model_2013)
+```
+```{r}
+summary(model_2015)
+```
+
+
+```{r}
+summary(model_2017)
+```
+
+
+```{r}
+summary(model_2013_2020)
+```
+
+
+```{r}
+summary(model_hypertention)
+```
+
+
+
+
+```{r}
+data_hist_2011<-data_hyper_2011%>%
+  select(all_of(var_keep_2013))
+
+hist_2011<-predict(model_2013,data_hist_2011)
+
+
+hist_2013<-predict(model_2013,clean_2013)
+
+data_hist_2015<-data_hyper_acc%>%
+  filter(svy_year=="2015-2016")%>%
+  select(all_of(var_keep_2013))
+
+hist_2015<-predict(model_2013,data_hist_2015)
+
+data_hist_2017<-data_hyper_acc%>%
+  filter(svy_year=="2017-2020")%>%
+  select(all_of(var_keep_2013))
+
+hist_2017<-predict(model_2013,data_hist_2017)
+```
+
+```{r}
+hist_data_2011<-data.frame(cycle=rep("2011-2012",length(hist_2011)),logit=hist_2011)
+hist_data_2013<-data.frame(cycle=rep("2013-2014",length(hist_2013)),logit=hist_2013)
+hist_data_2015<-data.frame(cycle=rep("2015-2016",length(hist_2015)),logit=hist_2015)
+hist_data_2017<-data.frame(cycle=rep("2017-2020",length(hist_2017)),logit=hist_2017)
+hist_data<-rbind(hist_data_2011,hist_data_2013,hist_data_2015,hist_data_2017)
+a<-ggplot(hist_data, aes(x = logit.link, line = cycle,color=cycle)) + geom_density(alpha = 0.3)+xlim(c(-10,5))+xlab("Predicted logit")+ylab("Density")+
+  theme(text = element_text(size = 20))
+ggsave("/Users/quangphucvu/Downloads/test.png", a, height = 8, width = 10, dpi = 1080)
+```
+
+# Making table of coefficients
+
+```{r}
+
+# creating dataframe of coefficients from summary models
+coef_2013_2020<-as.data.frame(coef(summary(model_2013_2020)))
+coef_2013_2020<-cbind(rownames(coef_2013_2020),data.frame(coef_2013_2020,row.names = NULL))
+colnames(coef_2013_2020)[1]<-"Variables"
+
+
+
+
+coef_2011<-as.data.frame(coef(summary(model_2011)))
+coef_2011<-cbind(rownames(coef_2011),data.frame(coef_2011,row.names = NULL))
+colnames(coef_2011)[1]<-"Variables"
+
+
+coef_2013<-as.data.frame(coef(summary(model_2013)))
+coef_2013<-cbind(rownames(coef_2013),data.frame(coef_2013,row.names = NULL))
+colnames(coef_2013)[1]<-"Variables"
+
+
+coef_2015<-as.data.frame(coef(summary(model_2015)))
+coef_2015<-cbind(rownames(coef_2015),data.frame(coef_2015,row.names = NULL))
+colnames(coef_2015)[1]<-"Variables"
+
+coef_2017<-as.data.frame(coef(summary(model_2017)))
+coef_2017<-cbind(rownames(coef_2017),data.frame(coef_2017,row.names = NULL))
+colnames(coef_2017)[1]<-"Variables"
+
+coef_hypertension<-as.data.frame(coef(summary(model_hypertention)))
+coef_hypertension<-cbind(rownames(coef_hypertension),data.frame(coef_hypertension,row.names = NULL))
+colnames(coef_hypertension)[1]<-"Variables"
+```
+
+
+```{r}
+#Merging dataframe using column tables
+Table_1<-coef_2013_2020 %>%
+  full_join(coef_2011,by="Variables",suffix = c("", ".2011")) %>%
+  full_join(coef_2013,by="Variables",suffix = c("", ".2013")) %>%
+  full_join(coef_2015,by="Variables",suffix = c("", ".2015")) %>%
+  full_join(coef_2017,by="Variables",suffix = c("", ".2017")) %>%
+  full_join(coef_hypertension,by="Variables",suffix = c("", ".hypertention_aware"))
+write.csv(Table_1,"/Users/quangphucvu/Desktop/ENAR/Tables and Figures/Coef_table.csv")
+```
+
+

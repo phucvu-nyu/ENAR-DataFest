@@ -1,0 +1,864 @@
+---
+title: "fit models"
+output: html_document
+date: "2024-01-09"
+---
+
+```{r setup, include=FALSE}
+# Set the seed for reproducibility
+set.seed(123)
+```
+
+```{r}
+# load all required packages
+#install.packages("glmnet")
+library(glmnet)
+#install.packages("caret")
+library(caret)
+library(R2jags)
+library(tidyverse)
+library(openxlsx)
+#install.packages("caret")
+library(caret)
+```
+
+```{r}
+# load data
+#dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+load("Data/data_hyper_acc.rdata")
+
+original_clean_data <- data_hyper_acc
+clean_data <- data_hyper_acc
+```
+
+
+# elastic net regression model result
+
+```{r}
+# variables we should keep based on the results from elastic net
+var_keep <- c("bp_med_combination","bp_med_ace","bp_med_aldo","bp_med_angioten","bp_med_beta","bp_med_central","bp_med_ccb","bp_med_ccb_dh","bp_med_diur_Ksparing","bp_med_diur_loop","bp_med_diur_thz","bp_med_renin_inhibitors","bp_med_vasod","cc_ckd","cc_cvd_hf","cc_cvd_any","SIALANG","INDFMPIR","HIQ011","avg_DR1TSUGR","avg_DR1TFIBE","avg_DR1TATOC","avg_DR1TATOA","avg_DR1TRET","avg_DR1TCRYP","avg_DR1TLZ","avg_DR1TNIAC","avg_DR1TVD","avg_DR1TSELE","avg_DR1TCAFF","avg_DR1TTHEO","avg_DR1TALCO","avg_DR1TMOIS","avg_DR1TM181","avg_DR1TP204","avg_DR1BWATZ","follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat", "ALQ130", "demo_race", "demo_gender","cc_diabetes","cc_bmi","svy_year","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha")
+```
+
+```{r}
+# Create training and testing sets
+clean_data_logit <- original_clean_data %>% select(var_keep)
+clean_data_logit <- na.omit(clean_data_logit)
+
+index <- sample(1:nrow(clean_data_logit), 0.8 * nrow(clean_data_logit))
+train_data <- clean_data_logit[index, ]
+test_data <- clean_data_logit[-index, ]
+```
+
+
+# Bayesian logistic regression
+## cross validation
+
+```{r}
+train_bp_control_accaha <- train_data$bp_control_accaha
+test_bp_control_accaha <- test_data$bp_control_accaha
+# remove response variable for train and test datasets
+train <- select(train_data, -bp_control_accaha)
+test <- select(test_data, -bp_control_accaha)
+
+# Identify categorical variables for training dataset
+categorical_vars <- train %>%
+  select_if(is.factor) %>%
+  names()
+
+# Identify numerical variables for training dataset
+num_vars <- train %>%
+  select_if(is.numeric) %>%
+  names()
+
+# Apply one-hot encoding to all categorical variables for training dataset
+train_data_encoded <- train %>%
+  select(-one_of(categorical_vars)) %>%
+  bind_cols(model.matrix(~.-1, data = select(train, all_of(categorical_vars))))
+train_data_encoded <- select(train_data_encoded, -"bp_med_combinationNo")
+
+# Identify categorical variables for testing dataset
+categorical_vars <- test %>%
+  select_if(is.factor) %>%
+  names()
+# Identify numerical variables for testing dataset
+num_vars <- test %>%
+  select_if(is.numeric) %>%
+  names()
+
+# Apply one-hot encoding to all categorical variables for testing dataset
+test_data_encoded <- test %>%
+  select(-one_of(categorical_vars)) %>%
+  bind_cols(model.matrix(~.-1, data = select(test, all_of(categorical_vars))))
+test_data_encoded <- select(test_data_encoded, -"bp_med_combinationNo")
+
+# add the response back to dataset
+data <- cbind(train_data_encoded, train_bp_control_accaha)
+test <- cbind(test_data_encoded, test_bp_control_accaha)
+
+# create folds for cross validation 
+num_folds <- 5
+folds <- createFolds(data$train_bp_control_accaha, k = num_folds, list = TRUE, returnTrain = FALSE)
+
+# Create a list to store data frames for each fold
+fold_data <- list()
+
+# Access the indices for each fold and create data frames
+for (fold in seq_along(folds)) {
+  fold_indices <- folds[[fold]]
+  fold_data[[fold]] <- data[fold_indices, ]
+}
+
+# Access a specific fold's data frame
+fold_1_data <- fold_data[[1]]
+fold_2_data <- fold_data[[2]]
+fold_3_data <- fold_data[[3]]
+fold_4_data <- fold_data[[4]]
+fold_5_data <- fold_data[[5]]
+
+# remove irrelavant variables
+fold_1_data <- select(fold_1_data , -c("svy_year2001-2002", "svy_year2003-2004", "svy_year2005-2006", "svy_year2007-2008", "svy_year2009-2010", "svy_year2011-2012", "svy_year2013-2014"))
+fold_2_data <- select(fold_2_data , -c("svy_year2001-2002", "svy_year2003-2004", "svy_year2005-2006", "svy_year2007-2008", "svy_year2009-2010", "svy_year2011-2012", "svy_year2013-2014"))
+fold_3_data <- select(fold_3_data , -c("svy_year2001-2002", "svy_year2003-2004", "svy_year2005-2006", "svy_year2007-2008", "svy_year2009-2010", "svy_year2011-2012", "svy_year2013-2014"))
+fold_4_data <- select(fold_4_data , -c("svy_year2001-2002", "svy_year2003-2004", "svy_year2005-2006", "svy_year2007-2008", "svy_year2009-2010", "svy_year2011-2012", "svy_year2013-2014"))
+fold_5_data <- select(fold_5_data , -c("svy_year2001-2002", "svy_year2003-2004", "svy_year2005-2006", "svy_year2007-2008", "svy_year2009-2010", "svy_year2011-2012", "svy_year2013-2014"))
+test <-  select(test, -c("svy_year2001-2002", "svy_year2003-2004", "svy_year2005-2006", "svy_year2007-2008", "svy_year2009-2010", "svy_year2011-2012", "svy_year2013-2014"))
+
+# combine datasets for cross validation 
+fold_1234 <- rbind(fold_1_data, fold_2_data, fold_3_data, fold_4_data)
+fold_2345 <- rbind(fold_2_data, fold_3_data, fold_4_data, fold_5_data)
+fold_3451 <- rbind(fold_3_data, fold_4_data, fold_5_data, fold_1_data)
+fold_4512 <- rbind(fold_4_data, fold_5_data, fold_1_data, fold_2_data)
+fold_5123 <- rbind(fold_5_data, fold_1_data, fold_2_data, fold_3_data)
+```
+
+
+# first cross validation (CV)
+```{r}
+# get train and test datasets for the first cross validation 
+Y_train  <- as.numeric(fold_1234$train_bp_control_accaha) - 1 
+Y_test  <- as.numeric(fold_5_data$train_bp_control_accaha) - 1
+X_train <- as.matrix(sapply(select(fold_1234, -train_bp_control_accaha), as.numeric))
+X_test <- as.matrix(sapply(select(fold_5_data,-train_bp_control_accaha), as.numeric))
+
+# specify n and n_pred later used in the model
+n = length(Y_train)
+n_pred = length(Y_test)
+
+# fit bayesian logistic regression
+JAGS_model = function() {
+  # Likelihood
+  for (i in 1:n) {
+    Y_train[i] ~ dbern(prob[i])
+    logit(prob[i]) <-  beta_0 + inprod(X_train[i,],beta)
+  }
+  #prior
+  beta_0 ~ dbeta(1,1)
+  
+  beta[1] ~ dbeta(1,1) # nutrient intake 
+  beta[2] ~ dbeta(1,1)
+  beta[3] ~ dbeta(1,1)
+  beta[4] ~ dbeta(1,1)
+  beta[5] ~ dbeta(1,1)
+  beta[6] ~ dbeta(1,1)
+  beta[7] ~ dbeta(1,1)
+  beta[8] ~ dbeta(1,1)
+  beta[9] ~ dbeta(1,1)
+  beta[10] ~ dbeta(1,1)
+  beta[11] ~ dbeta(1,1)
+  beta[12] ~ dbeta(1,1)
+  beta[13] ~ dbeta(1,1)
+  beta[14] ~ dbeta(1,1)
+  beta[15] ~ dbeta(1,1)
+  beta[16] ~ dbeta(1,1)
+  beta[17] ~ dbeta(1,1)
+  beta[18] ~ dbeta(1,1) # alq130
+  beta[19] ~ dbeta(1,1) # combination medication
+  beta[20] ~ dnorm(0.74, 0.1) # ace
+  beta[21] ~ dbeta(1,1) #aldo
+  beta[22] ~ dbeta(1,1)  #antigen
+  beta[23] ~ dnorm(0.88,0.1) # beta
+  beta[24] ~ dbeta(1,1) # central
+  beta[25] ~ dbeta(1,1) #ccb_dh
+  beta[26] ~ dnorm(1.66, 0.2) # diur_Kspring
+  beta[27] ~ dnorm(1.66, 0.2) #dilur_loop
+  beta[28] ~ dnorm(1.66, 0.2) #dilur_thz
+  beta[29] ~ dbeta(1,1)
+  beta[30] ~ dbeta(1,1)
+  beta[31] ~ dbeta(1,1)
+  beta[32] ~ dbeta(1,1)
+  beta[33] ~ dbeta(1,1)
+  beta[34] ~ dbeta(1,1)
+  beta[35] ~ dbeta(1,1)
+  beta[36] ~ dbeta(1,1)
+  beta[37] ~ dbeta(1,1)
+  beta[38] ~ dbeta(1,1)
+  beta[39] ~ dbeta(1,1)
+  beta[40] ~ dnorm(0.59, 0.1) # DPQMinimal
+  beta[41] ~ dnorm(0.5, 0.2) # DPQ
+  beta[42] ~ dnorm(0.5, 0.2) # DPQ 
+  beta[43] ~ dnorm(0.5, 0.2) # DPQ
+  beta[44] ~ dbeta(1,1)
+  beta[45] ~ dbeta(1,1)
+  beta[46] ~ dbeta(1,1)
+  beta[47] ~ dbeta(1,1)
+  beta[48] ~ dbeta(1,1) #age
+  beta[49] ~ dbeta(1,1) #age
+  beta[50] ~ dbeta(1,1) #age
+  beta[51] ~ dnorm(1.2,0.2) # race demo_raceNon-Hispanic Black	
+  beta[52] ~ dnorm(0.8,0.2) # race demo_raceNon-Hispanic Asian
+  beta[53] ~ dnorm(0.9,0.1) # race demo_raceHispanic
+  beta[54] ~ dnorm(0.8,0.2) # race demo_raceOther
+  beta[55] ~ dnorm(0.6, 0.2) # gender women
+  beta[56] ~ dbeta(1,1)
+  beta[57] ~ dnorm(1.04,0.01) #bmi
+  beta[58] ~ dnorm(1.06,0.01) #bmi
+  beta[59] ~ dnorm(1.08,0.01) # bmi
+  beta[60] ~ dbeta(1,1)
+  beta[61] ~ dbeta(1,1)
+  beta[62] ~ dbeta(1,1)
+  beta[63] ~ dbeta(1,1)
+  beta[64] ~ dnorm(1, 0.2) #edu
+  beta[65] ~ dnorm(1.1,0.2) #edu
+  beta[66] ~ dnorm(1.2,0.2) #edu
+  beta[67] ~ dnorm(1.2, 0.2) #edu
+  beta[68] ~ dbeta(1,1)
+  #prediction
+  for(i in 1:n_pred){
+    logit(p_pred[i]) <- beta_0 + inprod(X_test[i,],beta)
+    Y_pred[i] ~ dbern(p_pred[i])
+  }}
+
+fit_JAGS_model = jags(
+  data = list(Y_train = Y_train, n=n, X_train=as.matrix(X_train), X_test=as.matrix(X_test),n_pred=n_pred),
+  inits = list(list(Y_pred=rep(0,length=n_pred),beta_0 = 0,beta=rep(0, ncol(X_train)))),
+  parameters.to.save = c("beta", "Y_pred"),
+  n.chains = 1,
+  n.iter = 200,
+  n.burnin = 50,
+  model.file = JAGS_model
+)
+
+# get traceplot for each beta
+traceplot(fit_JAGS_model, varname = "beta", ask=FALSE)
+
+# get sensitivity
+pred_prob <- summary(as.mcmc(fit_JAGS_model))$statistics[paste("Y_pred[",1:n_pred,"]",sep=""),1]
+Y_pred = as.numeric(pred_prob > 0.5)
+sensitivity <- table(Y_pred,Y_test)[1,1]/(table(Y_pred,Y_test)[1,1] + table(Y_pred,Y_test)[1,2])
+sensitivity 
+```
+
+
+### second CV
+```{r}
+# get train and test datasets for the second cross validation 
+Y_train  <- as.numeric(fold_2345$train_bp_control_accaha) - 1 
+Y_test  <- as.numeric(fold_1_data$train_bp_control_accaha) - 1
+X_train <- as.matrix(sapply(select(fold_2345, -train_bp_control_accaha), as.numeric))
+X_test <- as.matrix(sapply(select(fold_1_data,-train_bp_control_accaha), as.numeric))
+
+# specify n and n_pred later used in the model
+n = length(Y_train)
+n_pred = length(Y_test)
+
+# fit Bayesian logistic regression
+JAGS_model = function() {
+  # Likelihood
+  for (i in 1:n) {
+    Y_train[i] ~ dbern(prob[i])
+    logit(prob[i]) <-  beta_0 + inprod(X_train[i,],beta)
+  }
+  #prior
+   beta_0 ~ dbeta(1,1)
+  
+  beta[1] ~ dbeta(1,1) # nutrient intake 
+  beta[2] ~ dbeta(1,1)
+  beta[3] ~ dbeta(1,1)
+  beta[4] ~ dbeta(1,1)
+  beta[5] ~ dbeta(1,1)
+  beta[6] ~ dbeta(1,1)
+  beta[7] ~ dbeta(1,1)
+  beta[8] ~ dbeta(1,1)
+  beta[9] ~ dbeta(1,1)
+  beta[10] ~ dbeta(1,1)
+  beta[11] ~ dbeta(1,1)
+  beta[12] ~ dbeta(1,1)
+  beta[13] ~ dbeta(1,1)
+  beta[14] ~ dbeta(1,1)
+  beta[15] ~ dbeta(1,1)
+  beta[16] ~ dbeta(1,1)
+  beta[17] ~ dbeta(1,1)
+  beta[18] ~ dbeta(1,1) # alq130
+  beta[19] ~ dbeta(1,1) # combination medication
+  beta[20] ~ dnorm(0.74, 0.1) # ace
+  beta[21] ~ dbeta(1,1) #aldo
+  beta[22] ~ dbeta(1,1)  #antigen
+  beta[23] ~ dnorm(0.88,0.1) # beta
+  beta[24] ~ dbeta(1,1) # central
+  beta[25] ~ dbeta(1,1) #ccb_dh
+  beta[26] ~ dnorm(1.66, 0.2) # diur_Kspring
+  beta[27] ~ dnorm(1.66, 0.2) #dilur_loop
+  beta[28] ~ dnorm(1.66, 0.2) #dilur_thz
+  beta[29] ~ dbeta(1,1)
+  beta[30] ~ dbeta(1,1)
+  beta[31] ~ dbeta(1,1)
+  beta[32] ~ dbeta(1,1)
+  beta[33] ~ dbeta(1,1)
+  beta[34] ~ dbeta(1,1)
+  beta[35] ~ dbeta(1,1)
+  beta[36] ~ dbeta(1,1)
+  beta[37] ~ dbeta(1,1)
+  beta[38] ~ dbeta(1,1)
+  beta[39] ~ dbeta(1,1)
+  beta[40] ~ dnorm(0.59, 0.1) # DPQMinimal
+  beta[41] ~ dnorm(0.5, 0.2) # DPQ
+  beta[42] ~ dnorm(0.5, 0.2) # DPQ 
+  beta[43] ~ dnorm(0.5, 0.2) # DPQ
+  beta[44] ~ dbeta(1,1)
+  beta[45] ~ dbeta(1,1)
+  beta[46] ~ dbeta(1,1)
+  beta[47] ~ dbeta(1,1)
+  beta[48] ~ dbeta(1,1) #age
+  beta[49] ~ dbeta(1,1) #age
+  beta[50] ~ dbeta(1,1) #age
+  beta[51] ~ dnorm(1.2,0.2) # race demo_raceNon-Hispanic Black	
+  beta[52] ~ dnorm(0.8,0.2) # race demo_raceNon-Hispanic Asian
+  beta[53] ~ dnorm(0.9,0.1) # race demo_raceHispanic
+  beta[54] ~ dnorm(0.8,0.2) # race demo_raceOther
+  beta[55] ~ dnorm(0.6, 0.2) # gender women
+  beta[56] ~ dbeta(1,1)
+  beta[57] ~ dnorm(1.04,0.01) #bmi
+  beta[58] ~ dnorm(1.06,0.01) #bmi
+  beta[59] ~ dnorm(1.08,0.01) # bmi
+  beta[60] ~ dbeta(1,1)
+  beta[61] ~ dbeta(1,1)
+  beta[62] ~ dbeta(1,1)
+  beta[63] ~ dbeta(1,1)
+  beta[64] ~ dnorm(1, 0.2) #edu
+  beta[65] ~ dnorm(1.1,0.2) #edu
+  beta[66] ~ dnorm(1.2,0.2) #edu
+  beta[67] ~ dnorm(1.2, 0.2) #edu
+  beta[68] ~ dbeta(1,1)
+  
+  #prediction
+  for(i in 1:n_pred){
+    logit(p_pred[i]) <- beta_0 + inprod(X_test[i,],beta)
+    Y_pred[i] ~ dbern(p_pred[i])
+  }}
+
+
+fit_JAGS_model = jags(
+  data = list(Y_train = Y_train, n=n, X_train=as.matrix(X_train), X_test=as.matrix(X_test),n_pred=n_pred),
+  inits = list(list(Y_pred=rep(0,length=n_pred),beta_0 = 0,beta=rep(0, ncol(X_train)))),
+  parameters.to.save = c("beta", "Y_pred"),
+  n.chains = 1,
+  n.iter = 200,
+  n.burnin = 50,
+  model.file = JAGS_model
+)
+
+# get traceplot for each beta
+traceplot(fit_JAGS_model, varname = "beta", ask=FALSE)
+
+# get sensitivity  
+pred_prob <- summary(as.mcmc(fit_JAGS_model))$statistics[paste("Y_pred[",1:n_pred,"]",sep=""),1]
+Y_pred = as.numeric(pred_prob > 0.5)
+sensitivity <- table(Y_pred,Y_test)[1,1]/(table(Y_pred,Y_test)[1,1] + table(Y_pred,Y_test)[1,2])
+sensitivity 
+```
+
+# third CV
+```{r}
+# get train and test datasets for the third cross validation 
+Y_train  <- as.numeric(fold_3451$train_bp_control_accaha) - 1 
+Y_test  <- as.numeric(fold_2_data$train_bp_control_accaha) - 1
+X_train <- as.matrix(sapply(select(fold_3451, -train_bp_control_accaha), as.numeric))
+X_test <- as.matrix(sapply(select(fold_2_data,-train_bp_control_accaha), as.numeric))
+
+# specify n and n_pred later used in the model
+n = length(Y_train)
+n_pred = length(Y_test)
+
+# Fit Bayesian logistic model 
+JAGS_model = function() {
+  # Likelihood
+  for (i in 1:n) {
+    Y_train[i] ~ dbern(prob[i])
+    logit(prob[i]) <-  beta_0 + inprod(X_train[i,],beta)
+  }
+  #prior
+  beta_0 ~ dbeta(1,1)
+  
+  beta[1] ~ dbeta(1,1) # nutrient intake 
+  beta[2] ~ dbeta(1,1)
+  beta[3] ~ dbeta(1,1)
+  beta[4] ~ dbeta(1,1)
+  beta[5] ~ dbeta(1,1)
+  beta[6] ~ dbeta(1,1)
+  beta[7] ~ dbeta(1,1)
+  beta[8] ~ dbeta(1,1)
+  beta[9] ~ dbeta(1,1)
+  beta[10] ~ dbeta(1,1)
+  beta[11] ~ dbeta(1,1)
+  beta[12] ~ dbeta(1,1)
+  beta[13] ~ dbeta(1,1)
+  beta[14] ~ dbeta(1,1)
+  beta[15] ~ dbeta(1,1)
+  beta[16] ~ dbeta(1,1)
+  beta[17] ~ dbeta(1,1)
+  beta[18] ~ dbeta(1,1) # alq130
+  beta[19] ~ dbeta(1,1) # combination medication
+  beta[20] ~ dnorm(0.74, 0.1) # ace
+  beta[21] ~ dbeta(1,1) #aldo
+  beta[22] ~ dbeta(1,1)  #antigen
+  beta[23] ~ dnorm(0.88,0.1) # beta
+  beta[24] ~ dbeta(1,1) # central
+  beta[25] ~ dbeta(1,1) #ccb_dh
+  beta[26] ~ dnorm(1.66, 0.2) # diur_Kspring
+  beta[27] ~ dnorm(1.66, 0.2) #dilur_loop
+  beta[28] ~ dnorm(1.66, 0.2) #dilur_thz
+  beta[29] ~ dbeta(1,1)
+  beta[30] ~ dbeta(1,1)
+  beta[31] ~ dbeta(1,1)
+  beta[32] ~ dbeta(1,1)
+  beta[33] ~ dbeta(1,1)
+  beta[34] ~ dbeta(1,1)
+  beta[35] ~ dbeta(1,1)
+  beta[36] ~ dbeta(1,1)
+  beta[37] ~ dbeta(1,1)
+  beta[38] ~ dbeta(1,1)
+  beta[39] ~ dbeta(1,1)
+  beta[40] ~ dnorm(0.59, 0.1) # DPQMinimal
+  beta[41] ~ dnorm(0.5, 0.2) # DPQ
+  beta[42] ~ dnorm(0.5, 0.2) # DPQ 
+  beta[43] ~ dnorm(0.5, 0.2) # DPQ
+  beta[44] ~ dbeta(1,1)
+  beta[45] ~ dbeta(1,1)
+  beta[46] ~ dbeta(1,1)
+  beta[47] ~ dbeta(1,1)
+  beta[48] ~ dbeta(1,1) #age
+  beta[49] ~ dbeta(1,1) #age
+  beta[50] ~ dbeta(1,1) #age
+  beta[51] ~ dnorm(1.2,0.2) # race demo_raceNon-Hispanic Black	
+  beta[52] ~ dnorm(0.8,0.2) # race demo_raceNon-Hispanic Asian
+  beta[53] ~ dnorm(0.9,0.1) # race demo_raceHispanic
+  beta[54] ~ dnorm(0.8,0.2) # race demo_raceOther
+  beta[55] ~ dnorm(0.6, 0.2) # gender women
+  beta[56] ~ dbeta(1,1)
+  beta[57] ~ dnorm(1.04,0.01) #bmi
+  beta[58] ~ dnorm(1.06,0.01) #bmi
+  beta[59] ~ dnorm(1.08,0.01) # bmi
+  beta[60] ~ dbeta(1,1)
+  beta[61] ~ dbeta(1,1)
+  beta[62] ~ dbeta(1,1)
+  beta[63] ~ dbeta(1,1)
+  beta[64] ~ dnorm(1, 0.2) #edu
+  beta[65] ~ dnorm(1.1,0.2) #edu
+  beta[66] ~ dnorm(1.2,0.2) #edu
+  beta[67] ~ dnorm(1.2, 0.2) #edu
+  beta[68] ~ dbeta(1,1)
+  
+  #prediction
+  for(i in 1:n_pred){
+    logit(p_pred[i]) <- beta_0 + inprod(X_test[i,],beta)
+    Y_pred[i] ~ dbern(p_pred[i])
+  }}
+
+fit_JAGS_model = jags(
+  data = list(Y_train = Y_train, n=n, X_train=as.matrix(X_train), X_test=as.matrix(X_test),n_pred=n_pred),
+  inits = list(list(Y_pred=rep(0,length=n_pred),beta_0 = 0,beta=rep(0, ncol(X_train)))),
+  parameters.to.save = c("beta", "Y_pred"),
+  n.chains = 1,
+  n.iter = 200,
+  n.burnin = 50,
+  model.file = JAGS_model
+)
+
+# get traceplot for each beta
+traceplot(fit_JAGS_model, varname = "beta", ask=FALSE)
+
+# get sensitivity 
+pred_prob <- summary(as.mcmc(fit_JAGS_model))$statistics[paste("Y_pred[",1:n_pred,"]",sep=""),1]
+Y_pred = as.numeric(pred_prob > 0.5)
+sensitivity <- table(Y_pred,Y_test)[1,1]/(table(Y_pred,Y_test)[1,1] + table(Y_pred,Y_test)[1,2])
+sensitivity 
+```
+
+# fourth CV
+ 
+```{r}
+# get train and test datasets for the fourth cross validation 
+Y_train  <- as.numeric(fold_4512$train_bp_control_accaha) - 1 
+Y_test  <- as.numeric(fold_3_data$train_bp_control_accaha) - 1
+X_train <- as.matrix(sapply(select(fold_4512, -train_bp_control_accaha), as.numeric))
+X_test <- as.matrix(sapply(select(fold_3_data,-train_bp_control_accaha), as.numeric))
+
+# specify n and n_pred later used in the model
+n = length(Y_train)
+n_pred = length(Y_test)
+
+# fit Bayesian logistic regression 
+JAGS_model = function() {
+  # Likelihood
+  for (i in 1:n) {
+    Y_train[i] ~ dbern(prob[i])
+    logit(prob[i]) <-  beta_0 + inprod(X_train[i,],beta)
+  }
+  #prior
+  beta_0 ~ dbeta(1,1)
+  
+  beta[1] ~ dbeta(1,1) # nutrient intake 
+  beta[2] ~ dbeta(1,1)
+  beta[3] ~ dbeta(1,1)
+  beta[4] ~ dbeta(1,1)
+  beta[5] ~ dbeta(1,1)
+  beta[6] ~ dbeta(1,1)
+  beta[7] ~ dbeta(1,1)
+  beta[8] ~ dbeta(1,1)
+  beta[9] ~ dbeta(1,1)
+  beta[10] ~ dbeta(1,1)
+  beta[11] ~ dbeta(1,1)
+  beta[12] ~ dbeta(1,1)
+  beta[13] ~ dbeta(1,1)
+  beta[14] ~ dbeta(1,1)
+  beta[15] ~ dbeta(1,1)
+  beta[16] ~ dbeta(1,1)
+  beta[17] ~ dbeta(1,1)
+  beta[18] ~ dbeta(1,1) # alq130
+  beta[19] ~ dbeta(1,1) # combination medication
+  beta[20] ~ dnorm(0.74, 0.1) # ace
+  beta[21] ~ dbeta(1,1) #aldo
+  beta[22] ~ dbeta(1,1)  #antigen
+  beta[23] ~ dnorm(0.88,0.1) # beta
+  beta[24] ~ dbeta(1,1) # central
+  beta[25] ~ dbeta(1,1) #ccb_dh
+  beta[26] ~ dnorm(1.66, 0.2) # diur_Kspring
+  beta[27] ~ dnorm(1.66, 0.2) #dilur_loop
+  beta[28] ~ dnorm(1.66, 0.2) #dilur_thz
+  beta[29] ~ dbeta(1,1)
+  beta[30] ~ dbeta(1,1)
+  beta[31] ~ dbeta(1,1)
+  beta[32] ~ dbeta(1,1)
+  beta[33] ~ dbeta(1,1)
+  beta[34] ~ dbeta(1,1)
+  beta[35] ~ dbeta(1,1)
+  beta[36] ~ dbeta(1,1)
+  beta[37] ~ dbeta(1,1)
+  beta[38] ~ dbeta(1,1)
+  beta[39] ~ dbeta(1,1)
+  beta[40] ~ dnorm(0.59, 0.1) # DPQMinimal
+  beta[41] ~ dnorm(0.5, 0.2) # DPQ
+  beta[42] ~ dnorm(0.5, 0.2) # DPQ 
+  beta[43] ~ dnorm(0.5, 0.2) # DPQ
+  beta[44] ~ dbeta(1,1)
+  beta[45] ~ dbeta(1,1)
+  beta[46] ~ dbeta(1,1)
+  beta[47] ~ dbeta(1,1)
+  beta[48] ~ dbeta(1,1) #age
+  beta[49] ~ dbeta(1,1) #age
+  beta[50] ~ dbeta(1,1) #age
+  beta[51] ~ dnorm(1.2,0.2) # race demo_raceNon-Hispanic Black	
+  beta[52] ~ dnorm(0.8,0.2) # race demo_raceNon-Hispanic Asian
+  beta[53] ~ dnorm(0.9,0.1) # race demo_raceHispanic
+  beta[54] ~ dnorm(0.8,0.2) # race demo_raceOther
+  beta[55] ~ dnorm(0.6, 0.2) # gender women
+  beta[56] ~ dbeta(1,1)
+  beta[57] ~ dnorm(1.04,0.01) #bmi
+  beta[58] ~ dnorm(1.06,0.01) #bmi
+  beta[59] ~ dnorm(1.08,0.01) # bmi
+  beta[60] ~ dbeta(1,1)
+  beta[61] ~ dbeta(1,1)
+  beta[62] ~ dbeta(1,1)
+  beta[63] ~ dbeta(1,1)
+  beta[64] ~ dnorm(1, 0.2) #edu
+  beta[65] ~ dnorm(1.1,0.2) #edu
+  beta[66] ~ dnorm(1.2,0.2) #edu
+  beta[67] ~ dnorm(1.2, 0.2) #edu
+  beta[68] ~ dbeta(1,1)
+  #prediction
+  for(i in 1:n_pred){
+    logit(p_pred[i]) <- beta_0 + inprod(X_test[i,],beta)
+    Y_pred[i] ~ dbern(p_pred[i])
+  }}
+
+
+fit_JAGS_model = jags(
+  data = list(Y_train = Y_train, n=n, X_train=as.matrix(X_train), X_test=as.matrix(X_test),n_pred=n_pred),
+  inits = list(list(Y_pred=rep(0,length=n_pred),beta_0 = 0,beta=rep(0, ncol(X_train)))),
+  parameters.to.save = c("beta", "Y_pred"),
+  n.chains = 1,
+  n.iter = 200,
+  n.burnin = 50,
+  model.file = JAGS_model
+)
+
+# get traceplot for each beta
+traceplot(fit_JAGS_model, varname = "beta", ask=FALSE)
+
+# get sensitivity 
+pred_prob <- summary(as.mcmc(fit_JAGS_model))$statistics[paste("Y_pred[",1:n_pred,"]",sep=""),1]
+Y_pred = as.numeric(pred_prob > 0.5)
+sensitivity <- table(Y_pred,Y_test)[1,1]/(table(Y_pred,Y_test)[1,1] + table(Y_pred,Y_test)[1,2])
+sensitivity 
+```
+
+# fifth CV
+ 
+```{r}
+# get train and test datasets for the fifth cross validation 
+Y_train  <- as.numeric(fold_5123$train_bp_control_accaha) - 1 
+Y_test  <- as.numeric(fold_4_data$train_bp_control_accaha) - 1
+X_train <- as.matrix(sapply(select(fold_5123, -train_bp_control_accaha), as.numeric))
+X_test <- as.matrix(sapply(select(fold_4_data,-train_bp_control_accaha), as.numeric))
+
+# specify n and n_pred later used in the model
+n = length(Y_train)
+n_pred = length(Y_test)
+
+# fit Bayesian logistic regression 
+JAGS_model = function() {
+  # Likelihood
+  for (i in 1:n) {
+    Y_train[i] ~ dbern(prob[i])
+    logit(prob[i]) <-  beta_0 + inprod(X_train[i,],beta)
+  }
+  #prior
+  beta_0 ~ dbeta(1,1)
+  
+  beta[1] ~ dbeta(1,1) # nutrient intake 
+  beta[2] ~ dbeta(1,1)
+  beta[3] ~ dbeta(1,1)
+  beta[4] ~ dbeta(1,1)
+  beta[5] ~ dbeta(1,1)
+  beta[6] ~ dbeta(1,1)
+  beta[7] ~ dbeta(1,1)
+  beta[8] ~ dbeta(1,1)
+  beta[9] ~ dbeta(1,1)
+  beta[10] ~ dbeta(1,1)
+  beta[11] ~ dbeta(1,1)
+  beta[12] ~ dbeta(1,1)
+  beta[13] ~ dbeta(1,1)
+  beta[14] ~ dbeta(1,1)
+  beta[15] ~ dbeta(1,1)
+  beta[16] ~ dbeta(1,1)
+  beta[17] ~ dbeta(1,1)
+  beta[18] ~ dbeta(1,1) # alq130
+  beta[19] ~ dbeta(1,1) # combination medication
+  beta[20] ~ dnorm(0.74, 0.1) # ace
+  beta[21] ~ dbeta(1,1) #aldo
+  beta[22] ~ dbeta(1,1)  #antigen
+  beta[23] ~ dnorm(0.88,0.1) # beta
+  beta[24] ~ dbeta(1,1) # central
+  beta[25] ~ dbeta(1,1) #ccb_dh
+  beta[26] ~ dnorm(1.66, 0.2) # diur_Kspring
+  beta[27] ~ dnorm(1.66, 0.2) #dilur_loop
+  beta[28] ~ dnorm(1.66, 0.2) #dilur_thz
+  beta[29] ~ dbeta(1,1)
+  beta[30] ~ dbeta(1,1)
+  beta[31] ~ dbeta(1,1)
+  beta[32] ~ dbeta(1,1)
+  beta[33] ~ dbeta(1,1)
+  beta[34] ~ dbeta(1,1)
+  beta[35] ~ dbeta(1,1)
+  beta[36] ~ dbeta(1,1)
+  beta[37] ~ dbeta(1,1)
+  beta[38] ~ dbeta(1,1)
+  beta[39] ~ dbeta(1,1)
+  beta[40] ~ dnorm(0.59, 0.1) # DPQMinimal
+  beta[41] ~ dnorm(0.5, 0.2) # DPQ
+  beta[42] ~ dnorm(0.5, 0.2) # DPQ 
+  beta[43] ~ dnorm(0.5, 0.2) # DPQ
+  beta[44] ~ dbeta(1,1)
+  beta[45] ~ dbeta(1,1)
+  beta[46] ~ dbeta(1,1)
+  beta[47] ~ dbeta(1,1)
+  beta[48] ~ dbeta(1,1) #age
+  beta[49] ~ dbeta(1,1) #age
+  beta[50] ~ dbeta(1,1) #age
+  beta[51] ~ dnorm(1.2,0.2) # race demo_raceNon-Hispanic Black	
+  beta[52] ~ dnorm(0.8,0.2) # race demo_raceNon-Hispanic Asian
+  beta[53] ~ dnorm(0.9,0.1) # race demo_raceHispanic
+  beta[54] ~ dnorm(0.8,0.2) # race demo_raceOther
+  beta[55] ~ dnorm(0.6, 0.2) # gender women
+  beta[56] ~ dbeta(1,1)
+  beta[57] ~ dnorm(1.04,0.01) #bmi
+  beta[58] ~ dnorm(1.06,0.01) #bmi
+  beta[59] ~ dnorm(1.08,0.01) # bmi
+  beta[60] ~ dbeta(1,1)
+  beta[61] ~ dbeta(1,1)
+  beta[62] ~ dbeta(1,1)
+  beta[63] ~ dbeta(1,1)
+  beta[64] ~ dnorm(1, 0.2) #edu
+  beta[65] ~ dnorm(1.1,0.2) #edu
+  beta[66] ~ dnorm(1.2,0.2) #edu
+  beta[67] ~ dnorm(1.2, 0.2) #edu
+  beta[68] ~ dbeta(1,1)
+  
+  
+  #prediction
+  for(i in 1:n_pred){
+    logit(p_pred[i]) <- beta_0 + inprod(X_test[i,],beta)
+    Y_pred[i] ~ dbern(p_pred[i])
+  }}
+
+
+fit_JAGS_model = jags(
+  data = list(Y_train = Y_train, n=n, X_train=as.matrix(X_train), X_test=as.matrix(X_test),n_pred=n_pred),
+  inits = list(list(Y_pred=rep(0,length=n_pred),beta_0 = 0,beta=rep(0, ncol(X_train)))),
+  parameters.to.save = c("beta", "Y_pred"),
+  n.chains = 1,
+  n.iter = 200,
+  n.burnin = 50,
+  model.file = JAGS_model
+)
+
+# get traceplot for each beta
+traceplot(fit_JAGS_model, varname = "beta", ask=FALSE)
+
+# get sensitivity 
+pred_prob <- summary(as.mcmc(fit_JAGS_model))$statistics[paste("Y_pred[",1:n_pred,"]",sep=""),1]
+Y_pred = as.numeric(pred_prob > 0.5)
+sensitivity <- table(Y_pred,Y_test)[1,1]/(table(Y_pred,Y_test)[1,1] + table(Y_pred,Y_test)[1,2])
+sensitivity 
+```
+
+
+# use the fisrt model (the most optimal one among 5 candidates) and validate it on the test dataset
+ 
+```{r}
+# get train and test datasets  
+Y_train  <- as.numeric(fold_1234$train_bp_control_accaha) - 1 
+X_train <- as.matrix(sapply(select(fold_1234, -train_bp_control_accaha), as.numeric))
+Y_test  <- as.numeric(test$test_bp_control_accaha) - 1
+X_test <- as.matrix(sapply(select(test,-test_bp_control_accaha), as.numeric))
+
+# specify n and n_pred later used in the model
+n = length(Y_train)
+n_pred = length(Y_test)
+
+# fit Bayesian logistic regression 
+JAGS_model = function() {
+  # Likelihood
+  for (i in 1:n) {
+    Y_train[i] ~ dbern(prob[i])
+    logit(prob[i]) <-  beta_0 + inprod(X_train[i,],beta)
+  }
+  #prior
+  beta_0 ~ dbeta(1,1)
+  
+  beta[1] ~ dbeta(1,1) # nutrient intake 
+  beta[2] ~ dbeta(1,1)
+  beta[3] ~ dbeta(1,1)
+  beta[4] ~ dbeta(1,1)
+  beta[5] ~ dbeta(1,1)
+  beta[6] ~ dbeta(1,1)
+  beta[7] ~ dbeta(1,1)
+  beta[8] ~ dbeta(1,1)
+  beta[9] ~ dbeta(1,1)
+  beta[10] ~ dbeta(1,1)
+  beta[11] ~ dbeta(1,1)
+  beta[12] ~ dbeta(1,1)
+  beta[13] ~ dbeta(1,1)
+  beta[14] ~ dbeta(1,1)
+  beta[15] ~ dbeta(1,1)
+  beta[16] ~ dbeta(1,1)
+  beta[17] ~ dbeta(1,1)
+  beta[18] ~ dbeta(1,1) # alq130
+  beta[19] ~ dbeta(1,1) # combination medication
+  beta[20] ~ dnorm(0.74, 0.1) # ace
+  beta[21] ~ dbeta(1,1) #aldo
+  beta[22] ~ dbeta(1,1)  #antigen
+  beta[23] ~ dnorm(0.88,0.1) # beta
+  beta[24] ~ dbeta(1,1) # central
+  beta[25] ~ dbeta(1,1) #ccb_dh
+  beta[26] ~ dnorm(1.66, 0.2) # diur_Kspring
+  beta[27] ~ dnorm(1.66, 0.2) #dilur_loop
+  beta[28] ~ dnorm(1.66, 0.2) #dilur_thz
+  beta[29] ~ dbeta(1,1)
+  beta[30] ~ dbeta(1,1)
+  beta[31] ~ dbeta(1,1)
+  beta[32] ~ dbeta(1,1)
+  beta[33] ~ dbeta(1,1)
+  beta[34] ~ dbeta(1,1)
+  beta[35] ~ dbeta(1,1)
+  beta[36] ~ dbeta(1,1)
+  beta[37] ~ dbeta(1,1)
+  beta[38] ~ dbeta(1,1)
+  beta[39] ~ dbeta(1,1)
+  beta[40] ~ dnorm(0.59, 0.1) # DPQMinimal
+  beta[41] ~ dnorm(0.5, 0.2) # DPQ
+  beta[42] ~ dnorm(0.5, 0.2) # DPQ 
+  beta[43] ~ dnorm(0.5, 0.2) # DPQ
+  beta[44] ~ dbeta(1,1)
+  beta[45] ~ dbeta(1,1)
+  beta[46] ~ dbeta(1,1)
+  beta[47] ~ dbeta(1,1)
+  beta[48] ~ dbeta(1,1) #age
+  beta[49] ~ dbeta(1,1) #age
+  beta[50] ~ dbeta(1,1) #age
+  beta[51] ~ dnorm(1.2,0.2) # race demo_raceNon-Hispanic Black	
+  beta[52] ~ dnorm(0.8,0.2) # race demo_raceNon-Hispanic Asian
+  beta[53] ~ dnorm(0.9,0.1) # race demo_raceHispanic
+  beta[54] ~ dnorm(0.8,0.2) # race demo_raceOther
+  beta[55] ~ dnorm(0.6, 0.2) # gender women
+  beta[56] ~ dbeta(1,1)
+  beta[57] ~ dnorm(1.04,0.01) #bmi
+  beta[58] ~ dnorm(1.06,0.01) #bmi
+  beta[59] ~ dnorm(1.08,0.01) # bmi
+  beta[60] ~ dbeta(1,1)
+  beta[61] ~ dbeta(1,1)
+  beta[62] ~ dbeta(1,1)
+  beta[63] ~ dbeta(1,1)
+  beta[64] ~ dnorm(1, 0.2) #edu
+  beta[65] ~ dnorm(1.1,0.2) #edu
+  beta[66] ~ dnorm(1.2,0.2) #edu
+  beta[67] ~ dnorm(1.2, 0.2) #edu
+  beta[68] ~ dbeta(1,1)
+  
+  #prediction
+  for(i in 1:n_pred){
+    logit(p_pred[i]) <- beta_0 + inprod(X_test[i,],beta)
+    Y_pred[i] ~ dbern(p_pred[i])
+  }}
+
+
+fit_JAGS_model = jags(
+  data = list(Y_train = Y_train, n=n, X_train=as.matrix(X_train), X_test=as.matrix(X_test),n_pred=n_pred),
+  inits = list(list(Y_pred=rep(0,length=n_pred),beta_0 = 0,beta=rep(0, ncol(X_train)))),
+  parameters.to.save = c("beta", "Y_pred", "beta_0"),
+  n.chains = 1,
+  n.iter = 200,
+  n.burnin = 50,
+  model.file = JAGS_model
+)
+
+
+# get traceplot for each beta
+traceplot(fit_JAGS_model, varname = c("beta_0","beta"), ask=FALSE)
+
+# get sensitivity 
+pred_prob <- summary(as.mcmc(fit_JAGS_model))$statistics[paste("Y_pred[",1:n_pred,"]",sep=""),1]
+Y_pred = as.numeric(pred_prob > 0.5)
+sensitivity <- table(Y_pred,Y_test)[1,1]/(table(Y_pred,Y_test)[1,1] + table(Y_pred,Y_test)[1,2])
+sensitivity 
+
+# Calculate the 95% credible interval for each beta
+beta_samples <- as.matrix(fit_JAGS_model$BUGSoutput$sims.matrix[, grep("^beta", colnames(fit_JAGS_model$BUGSoutput$sims.matrix))])
+credible_interval <- apply(beta_samples, 2, quantile, c(0.025, 0.975))
+print(credible_interval)
+
+# put results in a table
+credible_intervals <- data.frame(
+  Parameter = colnames(credible_interval),
+  variable_names = c(colnames(select(fold_3451, -train_bp_control_accaha)), "beta_0"),
+  Lower_Credible_Interval = round(credible_interval[1, ],3),
+  Upper_Credible_Interval = round(credible_interval[2, ],3)
+)
+credible_intervals
+
+# save the result table in excel
+write.xlsx(credible_intervals, file = paste0(dir,'Tables and Figures/Bayesian_results.xlsx'), row.names = FALSE)
+```
+
+
+ 

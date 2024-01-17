@@ -1,0 +1,251 @@
+---
+title: "2.0 Data manipulation and data cleaning"
+author: "Phuc Quang Vu pqv9968"
+date: "2024-01-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading necessary library
+
+```{r}
+library(readxl)
+library(dplyr)
+```
+
+
+
+# Data manipulation and data cleaning
+
+```{r}
+# Loading the data
+# set working directory
+#dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"/Data"))
+load("NHANES_FULL.Rdata")
+
+```
+
+```{r}
+#Subsetting kept variables
+variables_kept<-read_excel(paste0(dir,"/Data/Manipulation plan.xlsx"))
+variables<-variables_kept$variable_names[variables_kept$Include_Phuc!="Undecised"]
+```
+```{r}
+nhanes_full_selected<-nhanes_full%>%select(all_of(variables))
+# Recode depression
+# Only interested if the values are less than 4
+nhanes_full_selected$DPQ010[nhanes_full_selected$DPQ010>4]<-NA
+nhanes_full_selected$DPQ020[nhanes_full_selected$DPQ020>4]<-NA
+nhanes_full_selected$DPQ030[nhanes_full_selected$DPQ030>4]<-NA
+nhanes_full_selected$DPQ040[nhanes_full_selected$DPQ040>4]<-NA
+nhanes_full_selected$DPQ050[nhanes_full_selected$DPQ050>4]<-NA
+nhanes_full_selected$DPQ060[nhanes_full_selected$DPQ060>4]<-NA
+nhanes_full_selected$DPQ070[nhanes_full_selected$DPQ070>4]<-NA
+nhanes_full_selected$DPQ080[nhanes_full_selected$DPQ080>4]<-NA
+nhanes_full_selected$DPQ090[nhanes_full_selected$DPQ090>4]<-NA
+
+# Manipulation
+nhanes_manipulated<-nhanes_full_selected%>%
+  mutate(ALQ130=if_else(
+    #Alcohol consumption behavior
+    (ALQ110==2&!is.na(ALQ110))|# skip pattern of 2013 and 2015
+    (ALQ111==2&!is.na(ALQ111))| # skip pattern from 2017
+    (ALQ111==1&!is.na(ALQ111)&ALQ121==0&!is.na(ALQ121))# skip pattern from 2017
+      ,0,ALQ130),
+    #minute vigorous work based on skipping pattern if PAQ605 ==2 then PAD 615 =0
+    PAD615=if_else(PAQ605==2&!is.na(PAQ605),0,PAD615),
+    #minute moderate work based on skipping pattern if PAQ629 ==2 then PAD 630 =0
+    PAD630=if_else(PAQ620==2&!is.na(PAQ620),0,PAD630),
+    # Recode to align with PHQ 9 guidelines
+    DPQ=DPQ010+DPQ020+DPQ030+DPQ040+DPQ050+DPQ060+DPQ070+DPQ080+DPQ090,
+    # Cholesterol use
+    merged_chol_med_use = case_when(
+      chol_med_use == "Yes" | chol_med_use_sr == "Yes" ~ "Yes",
+      chol_med_use == "Yes" & is.na(chol_med_use_sr) ~ "Yes",
+      is.na(chol_med_use)   & chol_med_use_sr == "Yes" ~ "Yes",
+      chol_med_use == "No" & chol_med_use_sr == "No" ~ "No",
+      chol_med_use == "No" & is.na(chol_med_use_sr) ~ "No",
+      is.na(chol_med_use)   & chol_med_use_sr == "No" ~ "No",
+    )
+)
+
+# create a variable that takes the average of nutrient from day 1 to day 2
+# adding NA.RM=TRUE
+nhanes_manipulated <- nhanes_manipulated %>%
+  mutate(across(starts_with("DR1"), 
+                ~ rowMeans(cbind(., get(paste0("DR2", substring(cur_column(), 4)))),na.rm=TRUE),
+                .names = "avg_{.col}"))
+
+# Recode confused and refused to missing values
+nhanes_manipulated$ALQ130[nhanes_manipulated$ALQ130 %in% c(777,999)]<-NA
+nhanes_manipulated$ALQ130[nhanes_manipulated$ALQ130 >15]<-15
+nhanes_manipulated$PAD615[nhanes_manipulated$PAD615 %in% c(7777,9999)]<-NA
+nhanes_manipulated$PAD630[nhanes_manipulated$PAD630 %in% c(7777,9999)]<-NA
+
+# Make categories for Depression
+nhanes_manipulated<-nhanes_manipulated%>% mutate(
+  DPQ=case_when(DPQ<5~"Minimal",
+                DPQ %in% 5:9~"Mild",
+                DPQ %in% 10:14~"Moderate",
+                DPQ %in% 15:19~"Moderately severe",
+                DPQ >20~"Severe")
+)
+nhanes_manipulated<-nhanes_manipulated%>% 
+  rowwise()%>%
+  mutate(
+  PAD615_standardized=PAD615/75,
+  PAD630_standardized=PAD630/150)
+# Make categories for working out
+nhanes_manipulated<-nhanes_manipulated%>% 
+  rowwise()%>%
+  mutate(
+  weighted_activity= if_else(is.na(PAD615_standardized)&is.na(PAD630_standardized),
+                                       NA,sum(PAD615_standardized,PAD630_standardized,na.rm = TRUE)))
+
+# create a variable for physical activity
+nhanes_manipulated<-nhanes_manipulated%>% 
+  mutate(follow_activity_guideline=if_else(weighted_activity>=1,"Yes","No"))
+```
+
+
+```{r}
+# Processing cholesterol-lowering medication
+# create a variable to indicate which cholesterol-lowering medication they have taken
+nhanes_manipulated <- nhanes_manipulated %>% 
+  mutate(statin = case_when(chol_med_statin == "Yes" ~ "Statin"))
+                            
+nhanes_manipulated <- nhanes_manipulated %>% 
+  mutate(ezetimibe = case_when(chol_med_ezetimibe == "Yes" ~ "Ezetimibe"))
+
+nhanes_manipulated <- nhanes_manipulated %>% 
+  mutate(pcsk9i = case_when(chol_med_pcsk9i == "Yes" ~ "Pcsk9i"))
+
+nhanes_manipulated <- nhanes_manipulated %>% 
+  mutate(bile = case_when(chol_med_bile == "Yes" ~ "Bile"))
+
+nhanes_manipulated <- nhanes_manipulated %>% 
+  mutate(fibric_acid = case_when(chol_med_fibric_acid == "Yes" ~ "Fibric Acid"))
+
+nhanes_manipulated <- nhanes_manipulated %>% 
+  mutate(other = case_when(chol_med_other == "Yes" ~ "Other"))
+
+nhanes_manipulated <- nhanes_manipulated %>% 
+  mutate(merged_chol_med_name = paste(statin, ezetimibe,pcsk9i, bile, fibric_acid, other, sep = ","))
+unique(nhanes_manipulated$merged_chol_med_name)
+
+# remove NAs unless it has missing values
+nhanes_manipulated$merged_chol_med_name <- gsub("NA,", "",  nhanes_manipulated$merged_chol_med_name)
+nhanes_manipulated$merged_chol_med_name <- gsub(",NA", "",  nhanes_manipulated$merged_chol_med_name)
+# adding to remove "NA"
+nhanes_manipulated$merged_chol_med_name <- gsub("NA", "",  nhanes_manipulated$merged_chol_med_name)
+# distinguish between "NA" vs "No treatment"
+
+nhanes_manipulated$merged_chol_med_name[nhanes_manipulated$merged_chol_med_use=="No"&nhanes_manipulated$merged_chol_med_name == ""]<-"None"
+
+nhanes_manipulated$merged_chol_med_name[nhanes_manipulated$merged_chol_med_name == ""] <- NA
+unique(nhanes_manipulated$merged_chol_med_name)
+
+# adding for aethetics purpose
+nhanes_manipulated$merged_chol_med_name <- gsub(",", ", ",  nhanes_manipulated$merged_chol_med_name)
+```
+
+```{r}
+# Clean nutrient intake data
+# create a variable that takes the average of nutrient from day 1 to day 2
+nhanes_manipulated <- nhanes_manipulated %>%
+  mutate(across(starts_with("DR1"), 
+                ~ rowMeans(cbind(., get(paste0("DR2", substring(cur_column(), 4)))),na.rm=TRUE),
+                .names = "avg_{.col}"))
+```
+
+```{r}
+#removing unnecessary variables
+nhanes_step_1<-nhanes_manipulated%>% select(-starts_with("DR1"),-starts_with("DR2"),-starts_with("chol_med"),-starts_with("DPQ0"),-starts_with("PAD"),-starts_with("PAQ"))
+nhanes_step_1<-nhanes_step_1%>% select(-c("ALQ110","ALQ120Q","ALQ120U","ALQ101","ALQ141Q","ALQ141U","ALQ151","ALQ160","ALQ111","ALQ121","ALQ142","ALQ270","ALQ280","ALQ290","ALQ170","statin","ezetimibe","pcsk9i","bile","fibric_acid","other","weighted_activity","FSD670ZC"))
+```
+
+
+```{r}
+# select observations with hypertension after 2011
+data_hyper_acc_full<-nhanes_step_1%>% 
+  filter(htn_accaha=="Yes",#N=28056
+         # reason for choosing these year
+         svy_year %in% c("2011-2012",
+                         "2013-2014","2015-2016","2017-2020"),#N=
+         )%>% select(-c("htn_accaha"))
+target_columns <- c("DMDCITZN","DMDEDUC2","DMDMARTL","SIALANG","DMDHHSIZ","INDHHIN2","INDFMPIR","HIQ011","HIQ270","DPQ100","INQ320","DMDMARTZ","FSD162")  # Replace with your actual column names
+
+# Values to be replaced with NA
+values_to_replace <- c(7,77,777,9,99,999)
+
+# Using mutate_at to replace values in specified columns
+data_hyper_acc_full <- data_hyper_acc_full %>%
+  mutate_at(vars(all_of(target_columns)), ~ ifelse(. %in% values_to_replace, NA, .))
+# Values to be replaced with NA
+target_columns_2 <-c("DMDYRSUS")
+values_to_replace_2 <- c(77,777,99,999)
+# Using mutate_at to replace values in specified columns
+data_hyper_acc_full <- data_hyper_acc_full %>%
+  mutate_at(vars(all_of(target_columns_2)), ~ ifelse(. %in% values_to_replace_2, NA, .))
+
+#Some data cleaning after
+data_hyper_acc_full<-data_hyper_acc_full%>% mutate(INDFMPIR=case_when(INDFMPIR<=1~"Poor",
+                                                            INDFMPIR>1&INDFMPIR<=3~"Low",
+                                                            INDFMPIR>3~"Middle"))
+additional_cat_vars<-c("DMDEDUC2","SIALANG","FSDAD","INDFMPIR","HIQ011","DPQ","follow_activity_guideline")
+data_hyper_acc_full[additional_cat_vars]<-lapply(data_hyper_acc_full[additional_cat_vars],factor)
+
+# only keep data after 2011
+data_hyper_acc<-data_hyper_acc_full%>% 
+  filter(svy_year %in% c("2013-2014","2015-2016","2017-2020"))
+data_hyper_2011<-data_hyper_acc_full%>% 
+  filter(svy_year %in% c("2011-2012"))
+
+# save the cleaned data
+save(data_hyper_acc,file=paste0(dir,"Data/data_hyper_acc.rdata"))
+save(data_hyper_2011,file=paste0(dir,"Data/data_hyper_2011.rdata"))
+```
+
+
+# Removing NAs values 
+
+```{r}
+# Dropping due to too many NAs (threshold >2000 (25% of observations))
+threshold <- 2000
+
+# Get variables with more than 2500 NA values
+na_counts <- colSums(is.na(data_hyper_acc))
+vars_with_more_than_threshold <- names(na_counts[na_counts >= threshold])
+
+# Display the result
+data_drop_NA_threshold<-data_hyper_acc%>%select(-all_of(vars_with_more_than_threshold))
+
+# remove observations with NAs
+clean_data<-na.omit(data_drop_NA_threshold)
+
+# save the cleaned data
+save(clean_data,file=paste0(dir,"Data/clean_data.rdata"))
+```
+
+```{r}
+# the following code is only for survey data from cycle 2011-2012
+# Dropping due to too many NAs (threshold >530 (20% of observations))
+threshold_2011 <- 530
+
+# Get variables with more than the threshold
+na_counts_2011 <- colSums(is.na(data_hyper_2011))
+vars_with_more_than_threshold_2011 <- names(na_counts_2011[na_counts_2011 >= threshold_2011])
+
+# Display the result
+data_drop_NA_threshold_2011<-data_hyper_2011%>%select(-all_of(vars_with_more_than_threshold_2011))
+
+# remove all the missing observations
+clean_data_2011<-na.omit(data_drop_NA_threshold_2011)
+
+# save the cleaned data
+save(clean_data_2011,file=paste0(dir,"Data/clean_data_2011.rdata"))
+```

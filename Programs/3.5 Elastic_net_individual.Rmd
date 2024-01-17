@@ -1,0 +1,223 @@
+---
+title: "elastic_net2013"
+output:
+  html_document: default
+  pdf_document: default
+date: "2024-01-13"
+---
+
+# elastic net for 2013 cycle
+
+```{r setup, include=FALSE}
+# Set the seed for reproducibility
+set.seed(123)
+```
+
+```{r}
+# load all required packages
+#install.packages("glmnet")
+library(glmnet)
+#install.packages("caret")
+library(caret)
+#library(R2jags)
+library(tidyverse)
+```
+
+```{r}
+# load data
+#dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"/Data"))
+load("clean_data.rdata")
+#glimpse(clean_data)
+original_clean_data <- clean_data
+data_2013 <- original_clean_data %>% filter(svy_year == "2013-2014")
+```
+
+
+
+
+
+```{r}
+# standardize all numerical variables
+svy_weight_mec <- data_2013$svy_weight_mec 
+data_2013 <- select(data_2013, -c("svy_weight_mec","svy_id","svy_strata"))
+numerical_variables2013 <- sapply(data_2013, is.numeric)
+data_2013[, numerical_variables2013] <- scale(data_2013[, numerical_variables2013])
+
+# extract x and y from full dataset
+x_2013 <- select(data_2013, -c("follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat", "ALQ130", "demo_race", "demo_gender","cc_diabetes","cc_bmi" ,"svy_year","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha"))
+y_2013 <- as.vector(data_2013$bp_control_accaha)
+
+# convert predictors into numeric values in a matrix format
+X_matrix_2013 <- model.matrix(~., data = x_2013)
+
+# Fit elastic net logistic regression model with cross-validation
+cv_fit_2013 <- cv.glmnet(X_matrix_2013, y_2013, family = "binomial", alpha = 0.5, nfolds = 5, lambda = 10^seq(10, -2, length = 500), keep =TRUE)
+
+# get the optimal labmda
+cv_fit_2013$lambda.min
+
+# get the sequence of lamda the model has tried
+default_lambda_sequence2013 <- cv_fit_2013$lambda
+print(max(default_lambda_sequence2013))
+
+# Refit the model with the best lambda
+# use the best lambda that cross validation suggests
+best_model1_2013 <- glmnet(X_matrix_2013, y_2013, family = "binomial", alpha = 0.5, lambda = cv_fit_2013$lambda.min)
+
+# Get coefficients from the best model based on CV
+coef(best_model1_2013)
+```
+
+
+```{r}
+# a list of variables we need for later use
+var_keep_2013 <- c("bp_med_ace", "bp_med_aldo", "bp_med_angioten", "bp_med_beta", "bp_med_ccb_dh",  "bp_med_diur_thz","bp_med_renin_inhibitors", "cc_ckd", "cc_cvd_mi", "cc_cvd_stroke", "cc_cvd_ascvd", "cc_cvd_any", "SIALANG",  "avg_DR1TACAR", "avg_DR1TLZ","avg_DR1TCHL","avg_DR1TTHEO","avg_DR1TM221","follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat", "ALQ130","demo_race","demo_gender","cc_diabetes","cc_bmi","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+```
+
+
+
+# elastic net for 2011 cycle
+
+```{r}
+# load data
+load(paste0(dir,"Data/clean_data_2011.rdata"))
+data_2011 <- clean_data_2011
+```
+
+```{r}
+# standardize all numerical variables
+svy_weight_mec <- data_2011$svy_weight_mec 
+data_2011 <- select(data_2011,  -c("svy_weight_mec","svy_id","svy_strata"))
+numerical_variables2011 <- sapply(data_2011, is.numeric)
+data_2011[, numerical_variables2011] <- scale(data_2011[, numerical_variables2011])
+
+# extract x and y from full dataset
+x_2011 <- select(data_2011, -c("follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi" ,"svy_year","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha"))
+y_2011 <- as.vector(data_2011$bp_control_accaha)
+
+# convert predictors into numeric values in a matrix format
+X_matrix_2011 <- model.matrix(~., data = x_2011)
+
+# Fit elastic net logistic regression model with cross-validation
+cv_fit_2011 <- cv.glmnet(X_matrix_2011, y_2011, family = "binomial", alpha = 0.5, nfolds = 5, lambda = 10^seq(10, -2, length = 500), keep =TRUE)
+
+# get the optimal lambda based on CV
+cv_fit_2011$lambda.min 
+
+# get the sequence of lamda the model has tried
+default_lambda_sequence2011 <- cv_fit_2011$lambda
+print(max(default_lambda_sequence2011))
+
+# Refit the model with the best lambda
+# use the best lambda that cross validation suggests
+best_model1_2011 <- glmnet(X_matrix_2011, y_2011, family = "binomial", alpha = 0.5, lambda = cv_fit_2011$lambda.min)
+
+# extract all coefficients
+coef(best_model1_2011)
+```
+
+```{r}
+# a list of variables we need for later use
+var_keep_2011 <- c("bp_med_ace","bp_med_aldo","bp_med_alpha", "bp_med_angioten","bp_med_beta","bp_med_central","bp_med_ccb_ndh", "bp_med_diur_loop","bp_med_diur_thz", "bp_med_vasod", "cc_ckd", "cc_cvd_mi","cc_cvd_stroke", "DMDCITZN", "DMDMARTL","SIALANG", "INDHHIN2", "INDFMPIR", "FSDAD", "avg_DR1TCARB", "avg_DR1TVB2", "avg_DR1TNIAC","avg_DR1TFF","avg_DR1TVB12","avg_DR1TSODI","avg_DR1TCAFF","avg_DR1TTHEO", "avg_DR1TMOIS","avg_DR1TS120","avg_DR1TM201","avg_DR1TM221","avg_DR1TP205","avg_DR1_300","avg_DR1_320Z", "avg_DR1_330Z", "follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+```
+
+
+# elastic net for 2015 cycle
+```{r}
+
+#glimpse(clean_data)
+original_clean_data <- clean_data
+data_2015 <- original_clean_data %>% filter(svy_year == "2015-2016")
+```
+
+```{r}
+# standardize all numerical variables
+svy_weight_mec2015 <- data_2015$svy_weight_mec 
+data_2015 <- select(data_2015,  -c("svy_weight_mec","svy_id","svy_strata"))
+numerical_variables2015 <- sapply(data_2015, is.numeric)
+data_2015[, numerical_variables2015] <- scale(data_2015[, numerical_variables2015])
+
+
+# extract x and y from full dataset
+x_2015 <- select(data_2015, -c("follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","ALQ130" ,"svy_year","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha"))
+y_2015 <- as.vector(data_2015$bp_control_accaha)
+
+# convert predictors into numeric values in a matrix format
+X_matrix_2015 <- model.matrix(~., data = x_2015)
+
+# Fit elastic net logistic regression model with cross-validation
+cv_fit_2015 <- cv.glmnet(X_matrix_2015, y_2015, family = "binomial", alpha = 0.5, nfolds = 5, lambda = 10^seq(10, -2, length = 500), keep =TRUE)
+
+# get the optimal lambda
+cv_fit_2015$lambda.min 
+
+# get the sequence of lamda the model has tried
+default_lambda_sequence2015 <- cv_fit_2015$lambda
+print(max(default_lambda_sequence2015))
+
+# Refit the model with the best lambda
+# use the best lambda that cross validation suggests
+best_model1_2015 <- glmnet(X_matrix_2015, y_2015, family = "binomial", alpha = 0.5, lambda = cv_fit_2015$lambda.min)
+
+# Get coefficients from the best model
+coef(best_model1_2015)
+```
+
+
+```{r}
+# a list of variables we need for later use
+var_keep_2015 <- c("bp_med_combination", "bp_med_ace", "bp_med_aldo","bp_med_angioten", "bp_med_beta", "bp_med_central","bp_med_diur_Ksparing", "bp_med_diur_loop", "bp_med_diur_thz", "cc_ckd", "cc_cvd_chd", "cc_cvd_hf", "cc_cvd_any","SIALANG",  "INDFMPIR", "HIQ270", "avg_DR1TRET","avg_DR1TALCO", "avg_DR1TP225", "avg_DR1_300", "avg_DR1_320Z", "follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","ALQ130","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+```
+
+
+
+
+
+
+# elastic net for 2017 cycle
+
+```{r}
+
+# only keep data from 2017 to 2020
+data_2017 <- original_clean_data %>% filter(svy_year == "2017-2020")
+```
+
+
+```{r}
+# standardize all numerical variables
+svy_weight_mec2017 <- data_2017$svy_weight_mec 
+data_2017 <- select(data_2017,  -c("svy_weight_mec","svy_id","svy_strata"))
+numerical_variables2017 <- sapply(data_2017, is.numeric)
+data_2017[, numerical_variables2017] <- scale(data_2017[, numerical_variables2017])
+
+# extract x and y from full dataset
+x_2017 <- select(data_2017, -c("follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","ALQ130" ,"svy_year","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha"))
+y_2017 <- as.vector(data_2017$bp_control_accaha)
+
+# convert predictors into numeric values in a matrix format
+X_matrix_2017 <- model.matrix(~., data = x_2017)
+
+# Fit elastic net logistic regression model with cross-validation
+cv_fit_2017 <- cv.glmnet(X_matrix_2017, y_2017, family = "binomial", alpha = 0.5, nfolds = 5, lambda = 10^seq(10, -2, length = 500), keep =TRUE)
+
+# get the optimal lambda
+cv_fit_2017$lambda.min 
+
+# get the sequence of lamda the model has tried
+default_lambda_sequence2017 <- cv_fit_2017$lambda
+print(max(default_lambda_sequence2017))
+
+# Refit the model with the best lambda
+# use the best lambda that cross validation suggests
+best_model1_2017 <- glmnet(X_matrix_2017, y_2017, family = "binomial", alpha = 0.5, lambda = cv_fit_2017$lambda.min)
+
+# Get coefficients from the best model
+coef(best_model1_2017)
+```
+
+
+```{r}
+# a list of variables we need for later use
+var_keep_2017 <- c("bp_med_combination", "bp_med_ace", "bp_med_aldo", "bp_med_angioten", "bp_med_beta", "bp_med_central","bp_med_ccb", "bp_med_ccb_ndh","bp_med_diur_Ksparing","bp_med_diur_loop", "bp_med_diur_thz", "bp_med_vasod",  "cc_ckd","cc_cvd_mi","SIALANG", "FSDAD", "INDFMPIR","HIQ270", "avg_DR1TFIBE","avg_DR1TMFAT","avg_DR1TATOA", "avg_DR1TRET", "avg_DR1TVARA","avg_DR1TACAR","avg_DR1TVB6","avg_DR1TFF","avg_DR1TVD", "avg_DR1TCAFF","avg_DR1TALCO","avg_DR1TMOIS", "avg_DR1TM181","avg_DR1TP182", "follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat",  "demo_race", "demo_gender","cc_diabetes","cc_bmi","ALQ130","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+```

@@ -1,0 +1,93 @@
+---
+title: "elastic_net"
+output: html_document
+date: "2024-01-12"
+---
+
+```{r setup, include=FALSE}
+# Set the seed for reproducibility
+set.seed(123)
+```
+
+```{r,message=FALSE}
+# load all required packages
+#install.packages("glmnet")
+library(glmnet)
+#install.packages("caret")
+library(caret)
+#library(R2jags)
+library(tidyverse)
+```
+
+```{r setup, include=FALSE}
+# Set the seed for reproducibility
+set.seed(123)
+```
+
+```{r}
+#set working directory
+#dir="/Users/quangphucvu/Desktop/ENAR Rerun/" 
+setwd(paste0(dir,"/Data"))
+# load data
+load("clean_data.rdata")
+original_clean_data <- clean_data
+```
+
+# elastic net regression model
+
+
+
+```{r}
+# remove variables that we know are relevant 
+clean_data <- select(clean_data, -c("follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat", "ALQ130", "demo_race", "demo_gender","cc_diabetes","cc_bmi" ,"svy_year","cc_smoke","DMDEDUC2","htn_aware"))
+
+# standardize all numerical variables
+svy_weight_mec <- clean_data$svy_weight_mec 
+clean_data <- select(clean_data, -c("svy_weight_mec","svy_id","svy_strata"))
+numerical_variables <- sapply(clean_data, is.numeric)
+clean_data[, numerical_variables] <- scale(clean_data[, numerical_variables])
+
+# extract x and y from full dataset
+x <- select(clean_data, -c("bp_control_accaha"))
+y <- as.vector(clean_data$bp_control_accaha)
+
+# convert predictors into numeric values in a matrix format
+X_matrix <- model.matrix(~., data = x)
+
+# Fit elastic net logistic regression model with cross-validation
+cv_fit <- cv.glmnet(X_matrix, y, family = "binomial", alpha = 0.5, nfolds = 5, lambda = 10^seq(10, -2, length = 500), keep =TRUE)
+
+# use the best lambda that cross validation suggests
+best_model1 <- glmnet(X_matrix, y, family = "binomial", alpha = 0.5, lambda = cv_fit$lambda.min)
+
+# Get coefficients from the best model
+coef(best_model1)
+
+length(coef(best_model1)[which(coef(best_model1) != 0)])
+```
+
+
+
+```{r}
+# a list of variables we want to keep for later use
+var_keep <- c("bp_med_combination","bp_med_ace","bp_med_aldo","bp_med_angioten","bp_med_beta","bp_med_central","bp_med_ccb","bp_med_ccb_dh","bp_med_diur_Ksparing","bp_med_diur_loop","bp_med_diur_thz","bp_med_renin_inhibitors","bp_med_vasod","cc_ckd","cc_cvd_hf","cc_cvd_any","SIALANG","INDFMPIR","HIQ011","avg_DR1TSUGR","avg_DR1TFIBE","avg_DR1TATOC","avg_DR1TATOA","avg_DR1TRET","avg_DR1TCRYP","avg_DR1TLZ","avg_DR1TNIAC","avg_DR1TVD","avg_DR1TSELE","avg_DR1TCAFF","avg_DR1TTHEO","avg_DR1TALCO","avg_DR1TMOIS","avg_DR1TM181","avg_DR1TP204","avg_DR1BWATZ","follow_activity_guideline", "DPQ", "bp_med_n_class", "demo_age_cat", "ALQ130", "demo_race", "demo_gender","cc_diabetes","cc_bmi","svy_year","cc_smoke","DMDEDUC2","htn_aware","bp_control_accaha","svy_id","svy_strata", "svy_weight_mec")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
